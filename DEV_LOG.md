@@ -44,10 +44,15 @@
 - 3 commits poussés
 
 ### Ce qui reste à faire (plan)
-- [ ] Formulaire inscription pilote → connecter à Supabase (payment_status = 'paid' automatique)
-- [ ] Espace /compte → voir ses inscriptions, statut
+- [x] Formulaire inscription pilote → connecté à Supabase (payment_status = 'paid' automatique)
+- [x] Auth : login, register, mot de passe oublié, reset password
+- [x] Sécurité : honeypot bénévoles, confirmation email Supabase, SMTP Resend configuré
+- [ ] **Vérification domaine casv.ch dans Resend** ← À NE PAS OUBLIER avant la prod
+  - Resend.com → Domains → Add Domain → ajouter les DNS chez le registrar
+  - Sans ça : emails envoyés depuis un domaine non vérifié → spam ou rejet
+- [ ] Espace /compte → voir ses inscriptions, statut paiement
 - [ ] Interface admin → tableau inscriptions + bénévoles, export CSV
-- [ ] Emails confirmation (Resend, quand RESEND_API_KEY configuré)
+- [ ] Emails de confirmation post-inscription (Resend configuré, template à créer)
 - [ ] Stripe + Twint (phase ultérieure)
 - [ ] SEO, sitemap, traduction EN complète
 - [ ] Galerie photos (upload + affichage)
