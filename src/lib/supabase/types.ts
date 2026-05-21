@@ -19,6 +19,7 @@ export interface Database {
           max_pilots: number;
           price_chf: number;
           is_active: boolean;
+          is_registration_open: boolean | null;
           created_at: string;
         };
         Insert: Omit<Database["public"]["Tables"]["editions"]["Row"], "id" | "created_at">;
@@ -103,6 +104,21 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["volunteer_posts"]["Insert"]>;
         Relationships: [];
       };
+      volunteer_tasks: {
+        Row: {
+          id: string;
+          edition_id: string;
+          label: string;
+          display_order: number;
+        };
+        Insert: {
+          edition_id: string;
+          label: string;
+          display_order?: number;
+        };
+        Update: Partial<Database["public"]["Tables"]["volunteer_tasks"]["Insert"]>;
+        Relationships: [];
+      };
       volunteer_registrations: {
         Row: {
           id: string;
@@ -116,6 +132,11 @@ export interface Database {
           guest_first_name: string | null;
           guest_last_name: string | null;
           guest_email: string | null;
+          guest_phone: string | null;
+          age_group: string | null;
+          wants_membership: boolean | null;
+          task_interests: Record<string, string> | null;
+          assigned_post_ids: string[] | null;
           created_at: string;
         };
         Insert: {
@@ -129,6 +150,11 @@ export interface Database {
           guest_first_name?: string | null;
           guest_last_name?: string | null;
           guest_email?: string | null;
+          guest_phone?: string | null;
+          age_group?: string | null;
+          wants_membership?: boolean | null;
+          task_interests?: Record<string, string> | null;
+          assigned_post_ids?: string[] | null;
         };
         Update: Partial<Database["public"]["Tables"]["volunteer_registrations"]["Insert"]>;
         Relationships: [];
