@@ -14,6 +14,7 @@ export default function RegisterForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmEmail, setConfirmEmail] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -45,13 +46,40 @@ export default function RegisterForm() {
       });
       if (signUpError) throw signUpError;
 
-      // Le profil est créé automatiquement par le trigger on_auth_user_created
+      // Si la confirmation email est activée dans Supabase, identities est vide
+      // et l'utilisateur doit vérifier son email avant de se connecter
+      if (!data.session) {
+        setConfirmEmail(email);
+        setLoading(false);
+        return;
+      }
 
+      // Confirmation désactivée : session immédiate, on redirige
       router.push("/compte");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Erreur lors de la création du compte");
       setLoading(false);
     }
+  }
+
+  if (confirmEmail) {
+    return (
+      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12">
+        <div className="w-full max-w-sm text-center">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 mx-auto">
+            <Flag className="h-5 w-5 text-green-600" strokeWidth={2.5} />
+          </div>
+          <h1 className="text-xl font-bold text-gray-900 mb-2">Vérifiez votre email</h1>
+          <p className="text-sm text-gray-500 mb-1">
+            Un lien de confirmation a été envoyé à
+          </p>
+          <p className="font-medium text-gray-900 mb-4">{confirmEmail}</p>
+          <p className="text-xs text-gray-400">
+            Cliquez sur le lien dans l&apos;email pour activer votre compte, puis connectez-vous.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (

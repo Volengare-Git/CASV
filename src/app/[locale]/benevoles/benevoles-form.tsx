@@ -36,6 +36,7 @@ export default function BenevolesForm({ posts, editionId }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [prefs, setPrefs] = useState<string[]>(["", "", ""]);
+  const [honeypot, setHoneypot] = useState("");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -58,6 +59,8 @@ export default function BenevolesForm({ posts, editionId }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    // Honeypot : un bot remplit ce champ invisible, un humain jamais
+    if (honeypot) { setSubmitted(true); return; }
     setLoading(true);
     setError(null);
 
@@ -151,6 +154,11 @@ export default function BenevolesForm({ posts, editionId }: Props) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Honeypot anti-bot : caché visuellement, jamais rempli par un humain */}
+        <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", opacity: 0, pointerEvents: "none" }}>
+          <label htmlFor="surname">Ne pas remplir</label>
+          <input id="surname" name="surname" type="text" tabIndex={-1} autoComplete="off" value={honeypot} onChange={(e) => setHoneypot(e.target.value)} />
+        </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="firstName">Prénom *</Label>
