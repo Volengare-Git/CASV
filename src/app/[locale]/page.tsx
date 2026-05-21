@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { createAdminClient } from "@/lib/supabase/admin";
 import {
   Calendar,
   Clock,
@@ -16,12 +17,26 @@ import {
   Zap,
 } from "lucide-react";
 
+function computeIsOpen(edition: {
+  is_registration_open: boolean | null;
+  registration_opens_at: string;
+  registration_closes_at: string;
+}): boolean {
+  if (edition.is_registration_open === true) return true;
+  if (edition.is_registration_open === false) return false;
+  const now = new Date();
+  return (
+    now >= new Date(edition.registration_opens_at) &&
+    now <= new Date(edition.registration_closes_at)
+  );
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("home");
   return { title: t("heroEdition") };
 }
 
-function HeroSection() {
+function HeroSection({ isOpen }: { isOpen: boolean }) {
   const t = useTranslations("home");
 
   return (
@@ -46,10 +61,17 @@ function HeroSection() {
 
       <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:py-36">
         <div className="max-w-3xl">
-          <Badge className="mb-5 bg-yellow-400/20 text-yellow-300 border-yellow-400/30 hover:bg-yellow-400/20">
-            <Flag className="mr-1.5 h-3 w-3" />
-            {t("registrationOpen")}
-          </Badge>
+          {isOpen ? (
+            <Badge className="mb-5 bg-yellow-400/20 text-yellow-300 border-yellow-400/30 hover:bg-yellow-400/20">
+              <Flag className="mr-1.5 h-3 w-3" />
+              {t("registrationOpen")}
+            </Badge>
+          ) : (
+            <Badge className="mb-5 bg-red-900/40 text-red-300 border-red-700/40 hover:bg-red-900/40">
+              <Flag className="mr-1.5 h-3 w-3" />
+              {t("registrationClosed")}
+            </Badge>
+          )}
 
           <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
             {t("heroEdition")}
@@ -75,14 +97,12 @@ function HeroSection() {
           </div>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/inscription">
-              <Button
-                size="lg"
-                className="bg-yellow-400 hover:bg-yellow-300 text-blue-950 font-semibold px-8"
-              >
-                {t("heroCta")}
-                <ChevronRight className="ml-1 h-4 w-4" />
-              </Button>
+            <Link
+              href="/inscription"
+              className="inline-flex items-center justify-center rounded-md px-8 py-3 text-base font-semibold bg-yellow-400 hover:bg-yellow-300 text-blue-950 transition-colors"
+            >
+              {t("heroCta")}
+              <ChevronRight className="ml-1 h-4 w-4" />
             </Link>
             <Link
               href="/benevoles"
@@ -277,14 +297,15 @@ function CtaSection() {
             <p className="text-blue-200">{t("heroDate")}</p>
           </div>
           <div className="flex gap-3">
-            <Link href="/inscription">
-              <Button className="bg-yellow-400 hover:bg-yellow-300 text-blue-950 font-semibold">
-                {t("heroCta")}
-              </Button>
+            <Link
+              href="/inscription"
+              className="inline-flex items-center justify-center rounded-md px-5 py-2.5 text-sm font-semibold bg-yellow-400 hover:bg-yellow-300 text-blue-950 transition-colors"
+            >
+              {t("heroCta")}
             </Link>
             <Link
               href="/benevoles"
-              className="inline-flex items-center justify-center rounded-md border-2 border-white/60 px-4 py-2 text-sm font-medium text-white hover:bg-white/15 hover:border-white transition-colors"
+              className="inline-flex items-center justify-center rounded-md border-2 border-white/60 px-5 py-2.5 text-sm font-medium text-white hover:bg-white/15 hover:border-white transition-colors"
             >
               {t("heroCtaVolunteer")}
             </Link>
@@ -295,10 +316,30 @@ function CtaSection() {
   );
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const admin = createAdminClient();
+
+  const { data: edition } = await admin
+    .from("editions")
+    .select("id, max_pilots, is_registration_open, registration_opens_at, registration_closes_at")
+    .eq("is_active", true)
+    .single();
+
+  let isOpen = false;
+  if (edition) {
+    const { count } = await admin
+      .from("registrations")
+      .select("*", { count: "exact", head: true })
+      .eq("edition_id", edition.id)
+      .in("payment_status", ["paid", "pending"]);
+
+    const quotaReached = (count ?? 0) >= edition.max_pilots;
+    isOpen = computeIsOpen(edition) && !quotaReached;
+  }
+
   return (
     <>
-      <HeroSection />
+      <HeroSection isOpen={isOpen} />
       <CategoriesSection />
       <InfoSection />
       <AboutSection />

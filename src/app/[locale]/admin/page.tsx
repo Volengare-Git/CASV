@@ -1,15 +1,30 @@
 import type { Metadata } from "next";
 import { Link } from "@/i18n/routing";
 import { createAdminClient } from "@/lib/supabase/admin";
+import RegistrationToggle from "./registration-toggle";
 
 export const metadata: Metadata = { title: "Administration — CASV" };
+
+function computeIsOpen(edition: {
+  is_registration_open: boolean | null;
+  registration_opens_at: string;
+  registration_closes_at: string;
+}): boolean {
+  if (edition.is_registration_open === true) return true;
+  if (edition.is_registration_open === false) return false;
+  const now = new Date();
+  return (
+    now >= new Date(edition.registration_opens_at) &&
+    now <= new Date(edition.registration_closes_at)
+  );
+}
 
 export default async function AdminDashboardPage() {
   const admin = createAdminClient();
 
   const { data: edition } = await admin
     .from("editions")
-    .select("id, name, max_pilots, event_date")
+    .select("id, name, max_pilots, event_date, is_registration_open, registration_opens_at, registration_closes_at")
     .eq("is_active", true)
     .single();
 
@@ -28,14 +43,21 @@ export default async function AdminDashboardPage() {
   const paid = regs?.filter((r) => r.payment_status === "paid").length ?? 0;
   const pending = regs?.filter((r) => r.payment_status === "pending").length ?? 0;
   const maxPilots = edition?.max_pilots ?? 80;
+  const quotaReached = total >= maxPilots;
+
+  const isEffectivelyOpen = edition
+    ? computeIsOpen(edition) && !quotaReached
+    : false;
+
+  const fillPercent = Math.min(Math.round((total / maxPilots) * 100), 100);
 
   const stats = [
     {
       label: "Inscrits",
       value: `${total} / ${maxPilots}`,
-      sub: `${Math.round((total / maxPilots) * 100)}% de remplissage`,
-      color: "bg-blue-50 text-blue-700",
-      dot: "bg-blue-500",
+      sub: `${fillPercent}% de remplissage`,
+      color: quotaReached ? "bg-red-50 text-red-700" : "bg-blue-50 text-blue-700",
+      dot: quotaReached ? "bg-red-500" : "bg-blue-500",
     },
     {
       label: "Paiements confirmés",
@@ -54,7 +76,7 @@ export default async function AdminDashboardPage() {
     {
       label: "Bénévoles inscrits",
       value: (volunteerCount ?? 0).toString(),
-      sub: "Toutes éditions confondues",
+      sub: "Pour cette édition",
       color: "bg-purple-50 text-purple-700",
       dot: "bg-purple-500",
     },
@@ -62,7 +84,7 @@ export default async function AdminDashboardPage() {
 
   return (
     <div>
-      <div className="mb-8">
+      <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Tableau de bord</h1>
         {edition && (
           <p className="mt-1 text-sm text-gray-500">
@@ -76,6 +98,44 @@ export default async function AdminDashboardPage() {
         )}
       </div>
 
+      {/* Registration toggle */}
+      {edition && (
+        <RegistrationToggle
+          editionId={edition.id}
+          currentValue={edition.is_registration_open}
+          isEffectivelyOpen={isEffectivelyOpen}
+          quotaReached={quotaReached}
+        />
+      )}
+
+      {/* Quota progress bar */}
+      {edition && (
+        <div className="rounded-xl border border-gray-200 bg-white px-5 py-4 mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+              Remplissage
+            </span>
+            <span className="text-xs font-bold text-gray-700">
+              {total} / {maxPilots} pilotes
+            </span>
+          </div>
+          <div className="h-2 w-full rounded-full bg-gray-100 overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all ${
+                quotaReached ? "bg-red-500" : fillPercent >= 80 ? "bg-amber-500" : "bg-blue-600"
+              }`}
+              style={{ width: `${fillPercent}%` }}
+            />
+          </div>
+          {quotaReached && (
+            <p className="mt-2 text-xs text-red-600 font-medium">
+              Quota atteint — les inscriptions sont automatiquement fermées.
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Stats */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-10">
         {stats.map((s) => (
           <div key={s.label} className={`rounded-xl p-5 ${s.color}`}>
@@ -91,6 +151,7 @@ export default async function AdminDashboardPage() {
         ))}
       </div>
 
+      {/* Quick links */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <QuickLink
           href="/admin/inscriptions"
@@ -119,9 +180,9 @@ function QuickLink({
   return (
     <Link
       href={href}
-      className="block rounded-xl border border-gray-200 bg-white p-5 hover:border-red-300 hover:shadow-sm transition-all group"
+      className="block rounded-xl border border-gray-200 bg-white p-5 hover:border-blue-300 hover:shadow-sm transition-all group"
     >
-      <div className="font-semibold text-gray-900 group-hover:text-red-600 transition-colors mb-1">
+      <div className="font-semibold text-gray-900 group-hover:text-blue-800 transition-colors mb-1">
         {title} →
       </div>
       <div className="text-sm text-gray-500">{desc}</div>

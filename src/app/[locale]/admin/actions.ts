@@ -47,6 +47,16 @@ export async function assignDossard(registrationId: string, dossard: number | nu
   revalidatePath("/", "layout");
 }
 
+export async function setRegistrationOpen(editionId: string, value: boolean | null) {
+  const admin = await assertAdmin();
+  const { error } = await admin
+    .from("editions")
+    .update({ is_registration_open: value })
+    .eq("id", editionId);
+  if (error) throw new Error(error.message);
+  revalidatePath("/", "layout");
+}
+
 export async function assignVolunteerPost(volunteerRegId: string, postId: string | null) {
   const admin = await assertAdmin();
   const { error } = await admin
