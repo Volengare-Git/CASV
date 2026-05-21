@@ -26,17 +26,20 @@ function HeroSection() {
 
   return (
     <section className="relative overflow-hidden bg-blue-950 text-white">
-      {/* Background pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage:
-              "repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 50%)",
-            backgroundSize: "20px 20px",
-          }}
-        />
-      </div>
+      {/* Damier — drapeau de départ de course */}
+      <div
+        className="absolute inset-0 opacity-[0.06]"
+        style={{
+          backgroundImage: `
+            linear-gradient(45deg, #fff 25%, transparent 25%),
+            linear-gradient(-45deg, #fff 25%, transparent 25%),
+            linear-gradient(45deg, transparent 75%, #fff 75%),
+            linear-gradient(-45deg, transparent 75%, #fff 75%)
+          `,
+          backgroundSize: "32px 32px",
+          backgroundPosition: "0 0, 0 16px, 16px -16px, -16px 0px",
+        }}
+      />
 
       {/* Gold accent bar — like the logo ring */}
       <div className="absolute left-0 top-0 h-1 w-full bg-yellow-400" />
@@ -81,14 +84,11 @@ function HeroSection() {
                 <ChevronRight className="ml-1 h-4 w-4" />
               </Button>
             </Link>
-            <Link href="/benevoles">
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-white/20 text-white hover:bg-white/10 hover:text-white"
-              >
-                {t("heroCtaVolunteer")}
-              </Button>
+            <Link
+              href="/benevoles"
+              className="inline-flex items-center justify-center rounded-md border-2 border-white/60 px-8 py-3 text-base font-medium text-white hover:bg-white/15 hover:border-white transition-colors"
+            >
+              {t("heroCtaVolunteer")}
             </Link>
           </div>
         </div>
@@ -204,14 +204,12 @@ function InfoSection() {
         </div>
 
         <div className="mt-8 flex justify-center">
-          <Link href="/course">
-            <Button
-              variant="outline"
-              className="border-white/20 text-white hover:bg-white/10 hover:text-white"
-            >
-              Voir le programme complet
-              <ChevronRight className="ml-1 h-4 w-4" />
-            </Button>
+          <Link
+            href="/course"
+            className="inline-flex items-center justify-center rounded-md border-2 border-white/60 px-6 py-2.5 text-sm font-medium text-white hover:bg-white/15 hover:border-white transition-colors"
+          >
+            Voir le programme complet
+            <ChevronRight className="ml-1 h-4 w-4" />
           </Link>
         </div>
       </div>
@@ -284,13 +282,11 @@ function CtaSection() {
                 {t("heroCta")}
               </Button>
             </Link>
-            <Link href="/benevoles">
-              <Button
-                variant="outline"
-                className="border-white/30 text-white hover:bg-white/10 hover:text-white"
-              >
-                {t("heroCtaVolunteer")}
-              </Button>
+            <Link
+              href="/benevoles"
+              className="inline-flex items-center justify-center rounded-md border-2 border-white/60 px-4 py-2 text-sm font-medium text-white hover:bg-white/15 hover:border-white transition-colors"
+            >
+              {t("heroCtaVolunteer")}
             </Link>
           </div>
         </div>
