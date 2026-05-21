@@ -1,91 +1,70 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
-import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Send, Users, Clock } from "lucide-react";
+import { CheckCircle, Send } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import type { TaskOption } from "./page";
 
-type Post = {
-  id: string;
-  name: string;
-  start_time: string;
-  end_time: string;
-  capacity: number;
-};
+const TASK_OPTIONS = [
+  { value: "oui", label: "Oui" },
+  { value: "si_necessaire", label: "Si nécessaire" },
+  { value: "non", label: "Non" },
+] as const;
 
 interface Props {
-  posts: Post[];
   editionId: string;
+  tasks: TaskOption[];
 }
 
-export default function BenevolesForm({ posts, editionId }: Props) {
-  const t = useTranslations("volunteers");
+export default function BenevolesForm({ editionId, tasks }: Props) {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [prefs, setPrefs] = useState<string[]>(["", "", ""]);
   const [honeypot, setHoneypot] = useState("");
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    notes: "",
-  });
 
-  function setField(field: string, value: string) {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  }
+  const [lastName, setLastName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [ageGroup, setAgeGroup] = useState<"moins_18" | "18_et_plus" | "">("");
+  const [taskInterests, setTaskInterests] = useState<Record<string, string>>({});
+  const [wantsMembership, setWantsMembership] = useState<"true" | "false" | "">("");
+  const [notes, setNotes] = useState("");
 
-  function setPref(index: number, value: string | null) {
-    setPrefs((prev) => {
-      const next = [...prev];
-      next[index] = value ?? "";
-      return next;
-    });
-  }
+  const allTasksAnswered = tasks.length === 0 || tasks.every((t) => taskInterests[t.id]);
+  const isValid =
+    firstName.trim() &&
+    lastName.trim() &&
+    email.trim() &&
+    ageGroup !== "" &&
+    allTasksAnswered &&
+    wantsMembership !== "";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (honeypot) { setSubmitted(true); return; }
+    if (!isValid) return;
+
     setLoading(true);
     setError(null);
 
     const supabase = createClient();
-
-    const noteParts: string[] = [];
-    if (formData.phone) noteParts.push(`Tél: ${formData.phone}`);
-    if (formData.notes) noteParts.push(formData.notes);
-    if (prefs[1]) {
-      const p2 = posts.find((p) => p.id === prefs[1]);
-      if (p2) noteParts.push(`Préf. 2: ${p2.name}`);
-    }
-    if (prefs[2]) {
-      const p3 = posts.find((p) => p.id === prefs[2]);
-      if (p3) noteParts.push(`Préf. 3: ${p3.name}`);
-    }
-
     const { error: insertError } = await supabase
       .from("volunteer_registrations")
       .insert({
         edition_id: editionId,
-        preferred_post_id: prefs[0] || null,
-        guest_first_name: formData.firstName,
-        guest_last_name: formData.lastName,
-        guest_email: formData.email,
-        notes: noteParts.join(" | ") || null,
+        guest_first_name: firstName.trim(),
+        guest_last_name: lastName.trim(),
+        guest_phone: phone.trim() || null,
+        guest_email: email.trim(),
+        age_group: ageGroup,
+        task_interests: taskInterests,
+        wants_membership: wantsMembership === "true",
+        notes: notes.trim() || null,
         status: "pending",
         assignment_mode: "auto",
       });
@@ -102,121 +81,226 @@ export default function BenevolesForm({ posts, editionId }: Props) {
 
   if (submitted) {
     return (
-      <div className="mx-auto max-w-lg px-4 py-16 sm:px-6 text-center">
+      <div className="mx-auto max-w-lg px-4 py-20 sm:px-6 text-center">
         <CheckCircle className="mx-auto h-14 w-14 text-green-500 mb-4" />
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">{t("success")}</h1>
-        <p className="text-gray-500">{t("successText")}</p>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          Merci pour votre inscription !
+        </h1>
+        <p className="text-gray-500">
+          Nous vous contacterons bientôt pour confirmer votre rôle au sein de
+          l&apos;équipe.
+        </p>
       </div>
     );
   }
 
-  const availablePosts = (excludeIndexes: number[]) =>
-    posts.filter(
-      (p) => !excludeIndexes.map((i) => prefs[i]).filter(Boolean).includes(p.id)
-    );
-
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
-      <div className="mb-8">
-        <Badge className="mb-3 bg-blue-50 text-blue-800 border-blue-100 hover:bg-blue-50">
-          42ème Grand-Prix de Versoix
-        </Badge>
+      <div className="mb-10">
         <h1 className="text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl">
-          {t("title")}
+          Inscription bénévole
         </h1>
-        <p className="mt-2 text-gray-500">{t("intro")}</p>
+        <p className="mt-2 text-gray-500">
+          Rejoignez l&apos;équipe de bénévoles du Grand Prix de Versoix.
+          Votre aide est précieuse pour faire de cet événement une réussite !
+        </p>
       </div>
 
-      {/* Postes disponibles */}
-      <div className="mb-8 rounded-xl bg-gray-50 p-5 ring-1 ring-gray-100">
-        <div className="flex items-center gap-2 mb-4">
-          <Users className="h-4 w-4 text-blue-800" />
-          <h2 className="font-semibold text-gray-900">{t("postsTitle")}</h2>
+      <form onSubmit={handleSubmit} className="space-y-10">
+        {/* Honeypot */}
+        <div
+          aria-hidden="true"
+          style={{ position: "absolute", left: "-9999px", opacity: 0, pointerEvents: "none" }}
+        >
+          <input
+            type="text"
+            value={honeypot}
+            onChange={(e) => setHoneypot(e.target.value)}
+            tabIndex={-1}
+            autoComplete="off"
+          />
         </div>
-        <div className="grid gap-2 sm:grid-cols-2">
-          {posts.map((post) => (
-            <div
-              key={post.id}
-              className="flex items-center justify-between rounded-lg bg-white px-3 py-2 ring-1 ring-gray-100"
-            >
-              <div>
-                <p className="text-sm font-medium text-gray-800">{post.name}</p>
-                <p className="flex items-center gap-1 text-xs text-gray-400">
-                  <Clock className="h-3 w-3" />
-                  {post.start_time.slice(0, 5)}–{post.end_time.slice(0, 5)}
-                </p>
-              </div>
-              <span className="text-xs text-gray-400">{post.capacity} places</span>
+
+        {/* Coordonnées */}
+        <section className="space-y-4">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400">
+            Coordonnées
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="lastName">Nom *</Label>
+              <Input
+                id="lastName"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                required
+              />
             </div>
-          ))}
-        </div>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Honeypot anti-bot */}
-        <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", opacity: 0, pointerEvents: "none" }}>
-          <label htmlFor="surname">Ne pas remplir</label>
-          <input id="surname" name="surname" type="text" tabIndex={-1} autoComplete="off" value={honeypot} onChange={(e) => setHoneypot(e.target.value)} />
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label htmlFor="firstName">Prénom *</Label>
-            <Input id="firstName" value={formData.firstName} onChange={(e) => setField("firstName", e.target.value)} required />
+            <div className="space-y-1.5">
+              <Label htmlFor="firstName">Prénom *</Label>
+              <Input
+                id="firstName"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                required
+              />
+            </div>
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="lastName">Nom *</Label>
-            <Input id="lastName" value={formData.lastName} onChange={(e) => setField("lastName", e.target.value)} required />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="phone">Téléphone</Label>
+              <Input
+                id="phone"
+                type="tel"
+                placeholder="+41 79 000 00 00"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="email">Email *</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
           </div>
-        </div>
+        </section>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label htmlFor="email">Email *</Label>
-            <Input id="email" type="email" value={formData.email} onChange={(e) => setField("email", e.target.value)} required />
+        {/* Tranche d'âge */}
+        <section className="space-y-3">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400">
+            Tranche d&apos;âge *
+          </h2>
+          <div className="flex flex-wrap gap-5">
+            {(
+              [
+                { value: "moins_18", label: "Moins de 18 ans" },
+                { value: "18_et_plus", label: "18 ans et plus" },
+              ] as const
+            ).map((opt) => (
+              <label key={opt.value} className="flex cursor-pointer items-center gap-2">
+                <input
+                  type="radio"
+                  name="ageGroup"
+                  value={opt.value}
+                  checked={ageGroup === opt.value}
+                  onChange={() => setAgeGroup(opt.value)}
+                  className="h-4 w-4 accent-blue-800"
+                  required
+                />
+                <span className="text-sm text-gray-700">{opt.label}</span>
+              </label>
+            ))}
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="phone">Téléphone</Label>
-            <Input id="phone" type="tel" value={formData.phone} onChange={(e) => setField("phone", e.target.value)} />
-          </div>
-        </div>
+        </section>
 
-        {/* Préférences */}
-        <div className="space-y-3">
-          <Label>{t("preferences")}</Label>
-          {[0, 1, 2].map((i) => (
-            <div key={i} className="space-y-1">
-              <p className="text-xs text-gray-400">
-                {i === 0 ? t("preference1") : i === 1 ? t("preference2") : t("preference3")}
-              </p>
-              <Select value={prefs[i] ?? ""} onValueChange={(v: string | null) => setPref(i, v)}>
-                <SelectTrigger>
-                  <SelectValue placeholder={t("noPref")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">{t("noPref")}</SelectItem>
-                  {availablePosts([0, 1, 2].filter((idx) => idx !== i)).map((post) => (
-                    <SelectItem key={post.id} value={post.id}>
-                      {post.name} · {post.start_time.slice(0, 5)}–{post.end_time.slice(0, 5)}
-                    </SelectItem>
+        {/* Disponibilités par tâche */}
+        {tasks.length > 0 && (
+          <section className="space-y-3">
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400">
+              Disponibilités *
+            </h2>
+            <p className="text-sm text-gray-500">
+              Indiquez votre disponibilité pour chacune des tâches ci-dessous.
+            </p>
+            <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
+              <table className="min-w-full">
+                <thead>
+                  <tr className="border-b border-gray-200 bg-gray-50">
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 min-w-[220px]">
+                      Tâche
+                    </th>
+                    {TASK_OPTIONS.map((opt) => (
+                      <th
+                        key={opt.value}
+                        className="px-4 py-3 text-center text-xs font-semibold text-gray-500 min-w-[100px]"
+                      >
+                        {opt.label}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {tasks.map((task, idx) => (
+                    <tr key={task.id} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50/50"}>
+                      <td className="px-4 py-3 text-sm text-gray-700">{task.label}</td>
+                      {TASK_OPTIONS.map((opt) => (
+                        <td key={opt.value} className="px-4 py-3 text-center">
+                          <input
+                            type="radio"
+                            name={`task_${task.id}`}
+                            value={opt.value}
+                            checked={taskInterests[task.id] === opt.value}
+                            onChange={() =>
+                              setTaskInterests((prev) => ({
+                                ...prev,
+                                [task.id]: opt.value,
+                              }))
+                            }
+                            className="h-4 w-4 accent-blue-800"
+                          />
+                        </td>
+                      ))}
+                    </tr>
                   ))}
-                </SelectContent>
-              </Select>
+                </tbody>
+              </table>
             </div>
-          ))}
-        </div>
+            {!allTasksAnswered && (
+              <p className="text-xs text-gray-400">
+                Veuillez répondre à chaque tâche pour pouvoir envoyer le formulaire.
+              </p>
+            )}
+          </section>
+        )}
 
-        <div className="space-y-1.5">
-          <Label htmlFor="notes">{t("notes")}</Label>
+        {/* Adhésion */}
+        <section className="space-y-3">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400">
+            Adhésion *
+          </h2>
+          <p className="text-sm text-gray-600">
+            Souhaitez-vous devenir membre de l&apos;association CASV ?
+          </p>
+          <div className="flex gap-5">
+            {(
+              [
+                { value: "true", label: "Oui" },
+                { value: "false", label: "Non" },
+              ] as const
+            ).map((opt) => (
+              <label key={opt.value} className="flex cursor-pointer items-center gap-2">
+                <input
+                  type="radio"
+                  name="wantsMembership"
+                  value={opt.value}
+                  checked={wantsMembership === opt.value}
+                  onChange={() => setWantsMembership(opt.value)}
+                  className="h-4 w-4 accent-blue-800"
+                  required
+                />
+                <span className="text-sm text-gray-700">{opt.label}</span>
+              </label>
+            ))}
+          </div>
+        </section>
+
+        {/* Commentaires */}
+        <section className="space-y-1.5">
+          <Label htmlFor="notes">Commentaires</Label>
           <Textarea
             id="notes"
-            value={formData.notes}
-            onChange={(e) => setField("notes", e.target.value)}
-            placeholder={t("notesPlaceholder")}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Informations complémentaires, contraintes horaires…"
             rows={3}
             className="resize-none"
           />
-        </div>
+        </section>
 
         {error && (
           <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
@@ -224,11 +308,11 @@ export default function BenevolesForm({ posts, editionId }: Props) {
 
         <Button
           type="submit"
-          disabled={!formData.firstName || !formData.lastName || !formData.email || loading}
+          disabled={!isValid || loading}
           className="w-full bg-blue-800 hover:bg-blue-900 text-white sm:w-auto"
         >
           <Send className="mr-2 h-4 w-4" />
-          {loading ? "Envoi..." : t("confirm")}
+          {loading ? "Envoi en cours…" : "Envoyer mon inscription"}
         </Button>
       </form>
     </div>

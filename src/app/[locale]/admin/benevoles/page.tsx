@@ -15,13 +15,17 @@ export type VolunteerRow = {
   guest_first_name: string | null;
   guest_last_name: string | null;
   guest_email: string | null;
+  guest_phone: string | null;
+  age_group: string | null;
+  wants_membership: boolean | null;
+  task_interests: Record<string, string> | null;
+  assigned_post_ids: string[] | null;
   profiles: { first_name: string; last_name: string } | null;
   editions: { name: string } | null;
-  preferred_post: { name: string } | null;
-  assigned_post: { name: string; start_time: string; end_time: string } | null;
 };
 
 export type PostOption = { id: string; name: string; start_time: string; end_time: string };
+export type TaskOption = { id: string; label: string };
 
 export default async function BenevolesAdminPage() {
   const admin = createAdminClient();
@@ -32,27 +36,37 @@ export default async function BenevolesAdminPage() {
     .eq("is_active", true)
     .single();
 
-  const [{ data: raw }, { data: posts }] = await Promise.all([
+  const editionId = edition?.id ?? "";
+
+  const [{ data: raw }, { data: posts }, { data: tasks }] = await Promise.all([
     admin
       .from("volunteer_registrations")
       .select(
-        "id, user_id, status, assignment_mode, notes, created_at, guest_first_name, guest_last_name, guest_email, profiles(first_name, last_name), editions(name), preferred_post:volunteer_posts!preferred_post_id(name), assigned_post:volunteer_posts!assigned_post_id(name, start_time, end_time)"
+        "id, user_id, status, assignment_mode, notes, created_at, guest_first_name, guest_last_name, guest_email, guest_phone, age_group, wants_membership, task_interests, assigned_post_ids, profiles(first_name, last_name), editions(name)"
       )
+      .eq("edition_id", editionId)
       .order("created_at", { ascending: true }),
     admin
       .from("volunteer_posts")
       .select("id, name, start_time, end_time")
-      .eq("edition_id", edition?.id ?? "")
+      .eq("edition_id", editionId)
+      .order("display_order"),
+    admin
+      .from("volunteer_tasks")
+      .select("id, label")
+      .eq("edition_id", editionId)
       .order("display_order"),
   ]);
-
-  const volunteers = (raw ?? []) as VolunteerRow[];
-  const postOptions = (posts ?? []) as PostOption[];
 
   return (
     <div>
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Bénévoles</h1>
-      <BenevolesTable volunteers={volunteers} posts={postOptions} />
+      <BenevolesTable
+        volunteers={(raw ?? []) as VolunteerRow[]}
+        posts={(posts ?? []) as PostOption[]}
+        tasks={(tasks ?? []) as TaskOption[]}
+        editionId={editionId}
+      />
     </div>
   );
 }

@@ -21,9 +21,16 @@ export type RegistrationRow = {
 export default async function InscriptionsAdminPage() {
   const admin = createAdminClient();
 
+  const { data: edition } = await admin
+    .from("editions")
+    .select("id")
+    .eq("is_active", true)
+    .single();
+
   const { data: raw } = await admin
     .from("registrations")
     .select("id, category, vehicle_name, payment_status, payment_method, dossard_number, notes, created_at, profiles(first_name, last_name, phone), editions(name, year)")
+    .eq("edition_id", edition?.id ?? "")
     .order("created_at", { ascending: true });
 
   const registrations = (raw ?? []) as RegistrationRow[];

@@ -4,9 +4,11 @@ import { usePathname } from "next/navigation";
 import { Link } from "@/i18n/routing";
 
 const TABS = [
-  { label: "Tableau de bord", href: "/admin" },
+  { label: "Tableau de bord", href: "/admin", exact: true },
   { label: "Inscriptions", href: "/admin/inscriptions" },
-  { label: "Bénévoles", href: "/admin/benevoles" },
+  { label: "Bénévoles", href: "/admin/benevoles", exact: true },
+  { label: "Tâches bénévoles", href: "/admin/benevoles/taches" },
+  { label: "Éditions", href: "/admin/editions" },
 ];
 
 export default function AdminNav() {
@@ -14,10 +16,9 @@ export default function AdminNav() {
   return (
     <nav className="-mb-px flex gap-6 overflow-x-auto">
       {TABS.map((tab) => {
-        const isActive =
-          tab.href === "/admin"
-            ? /\/admin$/.test(pathname)
-            : pathname.includes(tab.href);
+        const isActive = tab.exact
+          ? pathname.endsWith(tab.href)
+          : pathname.includes(tab.href);
         return (
           <Link
             key={tab.href}
