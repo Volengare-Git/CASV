@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { createClient } from "@/lib/supabase/server";
 import type { Category, PaymentStatus, VolunteerStatus } from "@/lib/supabase/types";
+import CancelRegistrationButton from "./cancel-registration-button";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("account");
@@ -155,6 +156,7 @@ export default async function ComptePage() {
                   <Th>Caisse</Th>
                   <Th>Statut</Th>
                   <Th>Dossard</Th>
+                  <Th>&nbsp;</Th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -190,6 +192,14 @@ export default async function ComptePage() {
                           </span>
                         ) : (
                           <span className="text-gray-400 text-xs">À définir</span>
+                        )}
+                      </Td>
+                      <Td>
+                        {(reg.payment_status === "pending" || reg.payment_status === "paid") && (
+                          <CancelRegistrationButton
+                            registrationId={reg.id}
+                            editionName={reg.editions?.name ?? "cette édition"}
+                          />
                         )}
                       </Td>
                     </tr>

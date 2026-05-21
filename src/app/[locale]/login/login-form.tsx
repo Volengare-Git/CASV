@@ -8,11 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Flag } from "lucide-react";
 
-export default function LoginForm() {
+export default function LoginForm({ callbackError }: { callbackError?: string }) {
   const t = useTranslations("auth");
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(callbackError ?? null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -29,6 +29,7 @@ export default function LoginForm() {
 
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
+      router.refresh();
       router.push("/compte");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Erreur de connexion");
