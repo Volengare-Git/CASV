@@ -46,10 +46,10 @@ interface FormData {
 }
 
 const CATEGORIES: { value: Category; label: string; desc: string }[] = [
-  { value: "hobby",   label: "Hobby",    desc: "Pneus pleins · Nés entre 2012 et 2019" },
-  { value: "sport",   label: "Sport",    desc: "Pneus gonflés · Nés entre 2012 et 2019" },
-  { value: "libre",   label: "Libre",    desc: "Designs alternatifs · Nés entre 2012 et 2019" },
-  { value: "adulte",  label: "Adultes",  desc: "16 ans et plus" },
+  { value: "hobby",  label: "Hobby",   desc: "Pneus pleins · Nés entre 2012 et 2019" },
+  { value: "sport",  label: "Sport",   desc: "Pneus gonflés · Nés entre 2012 et 2019" },
+  { value: "libre",  label: "Libre",   desc: "Designs alternatifs · Nés entre 2012 et 2019" },
+  { value: "adulte", label: "Adultes", desc: "16 ans et plus" },
 ];
 
 const STEPS = [
@@ -87,10 +87,8 @@ export default function InscriptionForm({ editionId, editionName, priceChf, user
   async function handleSubmit() {
     setLoading(true);
     setError(null);
-
     const supabase = createClient();
 
-    // Met à jour le profil avec les dernières infos personnelles
     await supabase.from("profiles").update({
       first_name:  data.firstName,
       last_name:   data.lastName,
@@ -101,7 +99,6 @@ export default function InscriptionForm({ editionId, editionName, priceChf, user
       city:        data.city        || null,
     }).eq("id", userId);
 
-    // Crée l'inscription (paiement automatiquement validé pour l'instant)
     const { error: regError } = await supabase.from("registrations").insert({
       user_id:        userId,
       edition_id:     editionId,
@@ -149,7 +146,7 @@ export default function InscriptionForm({ editionId, editionName, priceChf, user
           </dl>
         </div>
         <Link href="/compte">
-          <Button className="bg-red-600 hover:bg-red-700 text-white">Mon espace participant</Button>
+          <Button className="bg-blue-800 hover:bg-blue-900 text-white">Mon espace participant</Button>
         </Link>
       </div>
     );
@@ -158,7 +155,7 @@ export default function InscriptionForm({ editionId, editionName, priceChf, user
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
       <div className="mb-8">
-        <Badge className="mb-3 bg-red-50 text-red-600 border-red-100 hover:bg-red-50">
+        <Badge className="mb-3 bg-blue-50 text-blue-800 border-blue-100 hover:bg-blue-50">
           {editionName}
         </Badge>
         <h1 className="text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl">
@@ -178,28 +175,28 @@ export default function InscriptionForm({ editionId, editionName, priceChf, user
               <div className="flex flex-col items-center gap-1">
                 <div className={cn(
                   "flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-bold transition-colors",
-                  isDone   ? "border-red-600 bg-red-600 text-white"
-                  : isActive ? "border-red-600 bg-white text-red-600"
+                  isDone    ? "border-blue-800 bg-blue-800 text-white"
+                  : isActive ? "border-blue-800 bg-white text-blue-800"
                   : "border-gray-200 bg-white text-gray-400"
                 )}>
                   {isDone ? <CheckCircle className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
                 </div>
                 <span className={cn(
                   "hidden text-xs sm:block",
-                  isActive ? "font-semibold text-red-600" : "text-gray-400"
+                  isActive ? "font-semibold text-blue-800" : "text-gray-400"
                 )}>
                   {s.label}
                 </span>
               </div>
               {i < STEPS.length - 1 && (
-                <div className={cn("flex-1 h-0.5 mx-2", step > s.id ? "bg-red-600" : "bg-gray-200")} />
+                <div className={cn("flex-1 h-0.5 mx-2", step > s.id ? "bg-blue-800" : "bg-gray-200")} />
               )}
             </div>
           );
         })}
       </div>
 
-      {/* Étape 1 : Infos personnelles */}
+      {/* Étape 1 */}
       {step === 1 && (
         <div className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
@@ -212,13 +209,11 @@ export default function InscriptionForm({ editionId, editionName, priceChf, user
               <Input id="lastName" value={data.lastName} onChange={(e) => update("lastName", e.target.value)} required />
             </div>
           </div>
-
           <div className="space-y-1.5">
             <Label htmlFor="email">{t("email")}</Label>
             <Input id="email" type="email" value={userEmail} disabled className="bg-gray-50 text-gray-500" />
             <p className="text-xs text-gray-400">L&apos;email est lié à votre compte et ne peut pas être modifié ici.</p>
           </div>
-
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label htmlFor="phone">{t("phone")}</Label>
@@ -229,12 +224,10 @@ export default function InscriptionForm({ editionId, editionName, priceChf, user
               <Input id="birthDate" type="date" value={data.birthDate} onChange={(e) => update("birthDate", e.target.value)} required />
             </div>
           </div>
-
           <div className="space-y-1.5">
             <Label htmlFor="address">{t("address")}</Label>
             <Input id="address" value={data.address} onChange={(e) => update("address", e.target.value)} />
           </div>
-
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="space-y-1.5">
               <Label htmlFor="postalCode">{t("postalCode")}</Label>
@@ -245,33 +238,21 @@ export default function InscriptionForm({ editionId, editionName, priceChf, user
               <Input id="city" value={data.city} onChange={(e) => update("city", e.target.value)} placeholder="Versoix" />
             </div>
           </div>
-
           <div className="flex justify-end pt-2">
-            <Button
-              onClick={() => setStep(2)}
-              disabled={!data.firstName || !data.lastName || !data.birthDate}
-              className="bg-red-600 hover:bg-red-700 text-white"
-            >
+            <Button onClick={() => setStep(2)} disabled={!data.firstName || !data.lastName || !data.birthDate} className="bg-blue-800 hover:bg-blue-900 text-white">
               {t("next")} <ChevronRight className="ml-1 h-4 w-4" />
             </Button>
           </div>
         </div>
       )}
 
-      {/* Étape 2 : Véhicule */}
+      {/* Étape 2 */}
       {step === 2 && (
         <div className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="vehicleName">{t("vehicleName")} *</Label>
-            <Input
-              id="vehicleName"
-              value={data.vehicleName}
-              onChange={(e) => update("vehicleName", e.target.value)}
-              placeholder={t("vehicleNamePlaceholder")}
-              required
-            />
+            <Input id="vehicleName" value={data.vehicleName} onChange={(e) => update("vehicleName", e.target.value)} placeholder={t("vehicleNamePlaceholder")} required />
           </div>
-
           <div className="space-y-3">
             <Label>{t("category")} *</Label>
             <div className="grid gap-2 sm:grid-cols-2">
@@ -283,11 +264,11 @@ export default function InscriptionForm({ editionId, editionName, priceChf, user
                   className={cn(
                     "rounded-xl border-2 p-4 text-left transition-all",
                     data.category === cat.value
-                      ? "border-red-600 bg-red-50"
+                      ? "border-blue-800 bg-blue-50"
                       : "border-gray-200 hover:border-gray-300 bg-white"
                   )}
                 >
-                  <p className={cn("font-semibold", data.category === cat.value ? "text-red-700" : "text-gray-900")}>
+                  <p className={cn("font-semibold", data.category === cat.value ? "text-blue-900" : "text-gray-900")}>
                     {cat.label}
                   </p>
                   <p className="text-xs text-gray-500 mt-0.5">{cat.desc}</p>
@@ -295,51 +276,30 @@ export default function InscriptionForm({ editionId, editionName, priceChf, user
               ))}
             </div>
           </div>
-
           <div className="flex justify-between pt-2">
             <Button variant="outline" onClick={() => setStep(1)}>
               <ChevronLeft className="mr-1 h-4 w-4" /> {t("back")}
             </Button>
-            <Button
-              onClick={() => setStep(3)}
-              disabled={!data.vehicleName || !data.category}
-              className="bg-red-600 hover:bg-red-700 text-white"
-            >
+            <Button onClick={() => setStep(3)} disabled={!data.vehicleName || !data.category} className="bg-blue-800 hover:bg-blue-900 text-white">
               {t("next")} <ChevronRight className="ml-1 h-4 w-4" />
             </Button>
           </div>
         </div>
       )}
 
-      {/* Étape 3 : Confirmation */}
+      {/* Étape 3 */}
       {step === 3 && (
         <div className="space-y-4">
           <div className="rounded-xl bg-gray-50 p-6 ring-1 ring-gray-100">
             <p className="text-xs uppercase tracking-widest text-gray-400 mb-4">Récapitulatif</p>
             <dl className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <dt className="text-gray-500">Pilote</dt>
-                <dd className="font-medium">{data.firstName} {data.lastName}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-gray-500">Email</dt>
-                <dd className="font-medium">{userEmail}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-gray-500">Date de naissance</dt>
-                <dd className="font-medium">{data.birthDate}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-gray-500">Caisse</dt>
-                <dd className="font-medium">{data.vehicleName}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-gray-500">Catégorie</dt>
-                <dd className="font-medium capitalize">{data.category}</dd>
-              </div>
+              <div className="flex justify-between"><dt className="text-gray-500">Pilote</dt><dd className="font-medium">{data.firstName} {data.lastName}</dd></div>
+              <div className="flex justify-between"><dt className="text-gray-500">Email</dt><dd className="font-medium">{userEmail}</dd></div>
+              <div className="flex justify-between"><dt className="text-gray-500">Date de naissance</dt><dd className="font-medium">{data.birthDate}</dd></div>
+              <div className="flex justify-between"><dt className="text-gray-500">Caisse</dt><dd className="font-medium">{data.vehicleName}</dd></div>
+              <div className="flex justify-between"><dt className="text-gray-500">Catégorie</dt><dd className="font-medium capitalize">{data.category}</dd></div>
             </dl>
           </div>
-
           <div className="rounded-xl border border-gray-200 p-4 flex items-start justify-between">
             <div>
               <p className="font-semibold text-gray-900">{t("price")}</p>
@@ -347,37 +307,30 @@ export default function InscriptionForm({ editionId, editionName, priceChf, user
             </div>
             <span className="font-bold text-lg text-gray-900">{priceChf} CHF</span>
           </div>
-
           <div className="flex items-start gap-2">
             <input
               type="checkbox"
               id="terms"
               checked={data.termsAccepted}
               onChange={(e) => update("termsAccepted", e.target.checked)}
-              className="mt-1 h-4 w-4 accent-red-600"
+              className="mt-1 h-4 w-4 accent-blue-800"
             />
             <label htmlFor="terms" className="text-sm text-gray-600">
               {t("termsAccept")} (
-              <Link href="/course#reglement" className="text-red-600 hover:underline">
+              <Link href="/course#reglement" className="text-blue-800 hover:underline">
                 {t("termsLink")}
               </Link>
               )
             </label>
           </div>
-
           {error && (
             <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
           )}
-
           <div className="flex justify-between pt-2">
             <Button variant="outline" onClick={() => setStep(2)}>
               <ChevronLeft className="mr-1 h-4 w-4" /> {t("back")}
             </Button>
-            <Button
-              onClick={handleSubmit}
-              disabled={!data.termsAccepted || loading}
-              className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6"
-            >
+            <Button onClick={handleSubmit} disabled={!data.termsAccepted || loading} className="bg-blue-800 hover:bg-blue-900 text-white font-semibold px-6">
               {loading ? "Inscription en cours..." : t("confirm")}
             </Button>
           </div>

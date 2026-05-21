@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { Separator } from "@/components/ui/separator";
 import LocaleSwitcher from "@/components/locale-switcher";
-import { Menu, X, Flag } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 
@@ -52,11 +53,15 @@ export default function Navigation({ user }: Props) {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-red-600">
-            <Flag className="h-4 w-4 text-white" strokeWidth={2.5} />
-          </div>
+          <Image
+            src="/logo-casv.png"
+            alt="CASV Versoix"
+            width={36}
+            height={36}
+            className="rounded-full"
+          />
           <span className="hidden font-bold tracking-tight text-gray-900 sm:block">
-            <span className="text-red-600">CASV</span> Versoix
+            <span className="text-blue-800">CASV</span> Versoix
           </span>
         </Link>
 
@@ -67,7 +72,7 @@ export default function Navigation({ user }: Props) {
               <NavigationMenuTrigger
                 className={cn(
                   isActive("/course") || isActive("/galerie") || isActive("/resultats")
-                    ? "text-red-600"
+                    ? "text-blue-800"
                     : ""
                 )}
               >
@@ -79,7 +84,7 @@ export default function Navigation({ user }: Props) {
                     <li key={link.href}>
                       <Link
                         href={link.href as "/course"}
-                        className="block rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors"
+                        className="block rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-800 transition-colors"
                       >
                         {link.label}
                       </Link>
@@ -94,7 +99,7 @@ export default function Navigation({ user }: Props) {
                 href="/inscription"
                 className={cn(
                   navigationMenuTriggerStyle(),
-                  isActive("/inscription") ? "text-red-600" : ""
+                  isActive("/inscription") ? "text-blue-800" : ""
                 )}
               >
                 {t("register")}
@@ -106,7 +111,7 @@ export default function Navigation({ user }: Props) {
                 href="/benevoles"
                 className={cn(
                   navigationMenuTriggerStyle(),
-                  isActive("/benevoles") ? "text-red-600" : ""
+                  isActive("/benevoles") ? "text-blue-800" : ""
                 )}
               >
                 {t("volunteers")}
@@ -118,7 +123,7 @@ export default function Navigation({ user }: Props) {
                 href="/association"
                 className={cn(
                   navigationMenuTriggerStyle(),
-                  isActive("/association") ? "text-red-600" : ""
+                  isActive("/association") ? "text-blue-800" : ""
                 )}
               >
                 {t("association")}
@@ -130,7 +135,7 @@ export default function Navigation({ user }: Props) {
                 href="/contact"
                 className={cn(
                   navigationMenuTriggerStyle(),
-                  isActive("/contact") ? "text-red-600" : ""
+                  isActive("/contact") ? "text-blue-800" : ""
                 )}
               >
                 {t("contact")}
@@ -165,7 +170,7 @@ export default function Navigation({ user }: Props) {
                 </Button>
               </Link>
               <Link href="/inscription" className="hidden lg:block">
-                <Button size="sm" className="bg-red-600 hover:bg-red-700 text-white">
+                <Button size="sm" className="bg-blue-800 hover:bg-blue-900 text-white">
                   {t("register")}
                 </Button>
               </Link>
@@ -181,13 +186,9 @@ export default function Navigation({ user }: Props) {
             <SheetContent side="right" className="w-72 p-0">
               <div className="flex items-center justify-between border-b px-4 py-4">
                 <span className="font-bold">
-                  <span className="text-red-600">CASV</span> Versoix
+                  <span className="text-blue-800">CASV</span> Versoix
                 </span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setMobileOpen(false)}
-                >
+                <Button variant="ghost" size="icon" onClick={() => setMobileOpen(false)}>
                   <X className="h-4 w-4" />
                 </Button>
               </div>
@@ -201,7 +202,7 @@ export default function Navigation({ user }: Props) {
                     key={link.href}
                     href={link.href as "/course"}
                     onClick={() => setMobileOpen(false)}
-                    className="rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors"
+                    className="rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-800 transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -222,8 +223,8 @@ export default function Navigation({ user }: Props) {
                     className={cn(
                       "rounded-md px-3 py-2 text-sm font-medium transition-colors",
                       isActive(link.href)
-                        ? "bg-red-50 text-red-600"
-                        : "text-gray-700 hover:bg-gray-50 hover:text-red-600"
+                        ? "bg-blue-50 text-blue-800"
+                        : "text-gray-700 hover:bg-blue-50 hover:text-blue-800"
                     )}
                   >
                     {link.label}
@@ -237,7 +238,7 @@ export default function Navigation({ user }: Props) {
                     <Link
                       href="/compte"
                       onClick={() => setMobileOpen(false)}
-                      className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-red-600"
+                      className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-800"
                     >
                       {t("myAccount")}
                     </Link>
@@ -258,7 +259,7 @@ export default function Navigation({ user }: Props) {
                       {t("login")}
                     </Link>
                     <Link href="/inscription" onClick={() => setMobileOpen(false)}>
-                      <Button className="mt-2 w-full bg-red-600 hover:bg-red-700 text-white">
+                      <Button className="mt-2 w-full bg-blue-800 hover:bg-blue-900 text-white">
                         {t("register")}
                       </Button>
                     </Link>

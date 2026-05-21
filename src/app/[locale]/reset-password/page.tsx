@@ -59,7 +59,7 @@ export default function ResetPasswordPage() {
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-600">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-800">
             <Flag className="h-5 w-5 text-white" strokeWidth={2.5} />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Nouveau mot de passe</h1>
@@ -99,7 +99,7 @@ export default function ResetPasswordPage() {
           <Button
             type="submit"
             disabled={loading || !password || !passwordConfirm}
-            className="w-full bg-red-600 hover:bg-red-700 text-white"
+            className="w-full bg-blue-800 hover:bg-blue-900 text-white"
           >
             {loading ? "Mise à jour..." : "Mettre à jour le mot de passe"}
           </Button>

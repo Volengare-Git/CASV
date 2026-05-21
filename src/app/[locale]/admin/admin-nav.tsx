@@ -24,7 +24,7 @@ export default function AdminNav() {
             href={tab.href}
             className={`shrink-0 border-b-2 pb-3 text-sm font-medium transition-colors ${
               isActive
-                ? "border-red-600 text-red-600"
+                ? "border-blue-800 text-blue-800"
                 : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-900"
             }`}
           >

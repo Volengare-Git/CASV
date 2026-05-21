@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
-import { Flag } from "lucide-react";
+import Image from "next/image";
 
 export default function Footer() {
   const t = useTranslations("nav");
@@ -12,11 +12,15 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link href="/" className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-red-600">
-                <Flag className="h-4 w-4 text-white" strokeWidth={2.5} />
-              </div>
+              <Image
+                src="/logo-casv.png"
+                alt="CASV Versoix"
+                width={36}
+                height={36}
+                className="rounded-full"
+              />
               <span className="font-bold text-gray-900">
-                <span className="text-red-600">CASV</span> Versoix
+                <span className="text-blue-800">CASV</span> Versoix
               </span>
             </Link>
             <p className="mt-3 text-sm leading-relaxed text-gray-500">
@@ -41,7 +45,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href as "/course"}
-                    className="text-gray-500 hover:text-red-600 transition-colors"
+                    className="text-gray-500 hover:text-blue-800 transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -63,7 +67,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href as "/association"}
-                    className="text-gray-500 hover:text-red-600 transition-colors"
+                    className="text-gray-500 hover:text-blue-800 transition-colors"
                   >
                     {link.label}
                   </Link>

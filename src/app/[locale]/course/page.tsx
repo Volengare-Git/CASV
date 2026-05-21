@@ -52,7 +52,7 @@ export default function CoursePage() {
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-16">
       {/* Header */}
       <div className="mb-10">
-        <Badge className="mb-3 bg-red-50 text-red-600 border-red-100 hover:bg-red-50">
+        <Badge className="mb-3 bg-blue-50 text-blue-800 border-blue-100 hover:bg-blue-50">
           42ème Grand-Prix de Versoix
         </Badge>
         <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
@@ -65,7 +65,7 @@ export default function CoursePage() {
         {/* Programme */}
         <section id="programme">
           <div className="flex items-center gap-2 mb-6">
-            <Clock className="h-5 w-5 text-red-600" />
+            <Clock className="h-5 w-5 text-blue-800" />
             <h2 className="text-xl font-bold text-gray-900">{t("programTitle")}</h2>
           </div>
 
@@ -74,19 +74,19 @@ export default function CoursePage() {
               <div
                 key={i}
                 className={`flex items-center gap-4 px-5 py-4 ${
-                  item.highlight ? "bg-red-50" : i % 2 === 0 ? "bg-white" : "bg-gray-50/50"
+                  item.highlight ? "bg-blue-50" : i % 2 === 0 ? "bg-white" : "bg-gray-50/50"
                 } ${i < schedule.length - 1 ? "border-b border-gray-100" : ""}`}
               >
                 <span
                   className={`min-w-[4rem] text-sm font-bold tabular-nums ${
-                    item.highlight ? "text-red-600" : "text-gray-400"
+                    item.highlight ? "text-blue-800" : "text-gray-400"
                   }`}
                 >
                   {item.time}
                 </span>
                 <span
                   className={`text-sm ${
-                    item.highlight ? "font-semibold text-red-700" : "text-gray-700"
+                    item.highlight ? "font-semibold text-blue-900" : "text-gray-700"
                   }`}
                 >
                   {item.event}
@@ -106,20 +106,18 @@ export default function CoursePage() {
         {/* Règlement */}
         <section id="reglement">
           <div className="flex items-center gap-2 mb-6">
-            <ShieldCheck className="h-5 w-5 text-red-600" />
+            <ShieldCheck className="h-5 w-5 text-blue-800" />
             <h2 className="text-xl font-bold text-gray-900">{t("rulesTitle")}</h2>
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2">
             {/* Équipement */}
             <div className="rounded-xl bg-gray-50 p-6 ring-1 ring-gray-100">
-              <h3 className="font-semibold text-gray-900 mb-3">
-                {t("rulesEquipment")}
-              </h3>
+              <h3 className="font-semibold text-gray-900 mb-3">{t("rulesEquipment")}</h3>
               <ul className="space-y-2">
                 {equipment.map((item, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-700" />
                     {item}
                   </li>
                 ))}
@@ -130,14 +128,12 @@ export default function CoursePage() {
             <div className="rounded-xl bg-gray-50 p-6 ring-1 ring-gray-100">
               <div className="flex items-center gap-2 mb-3">
                 <Ruler className="h-4 w-4 text-gray-400" />
-                <h3 className="font-semibold text-gray-900">
-                  {t("rulesDimensions")}
-                </h3>
+                <h3 className="font-semibold text-gray-900">{t("rulesDimensions")}</h3>
               </div>
               <ul className="space-y-2">
                 {dimensions.map((item, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-700" />
                     {item}
                   </li>
                 ))}
@@ -149,12 +145,8 @@ export default function CoursePage() {
               <div className="flex items-start gap-3">
                 <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
                 <div>
-                  <h3 className="font-semibold text-amber-900">
-                    {t("rulesInsurance")}
-                  </h3>
-                  <p className="mt-1 text-sm text-amber-800">
-                    {t("rulesInsuranceText")}
-                  </p>
+                  <h3 className="font-semibold text-amber-900">{t("rulesInsurance")}</h3>
+                  <p className="mt-1 text-sm text-amber-800">{t("rulesInsuranceText")}</p>
                 </div>
               </div>
             </div>
@@ -175,7 +167,7 @@ export default function CoursePage() {
         {/* Accès */}
         <section id="acces">
           <div className="flex items-center gap-2 mb-6">
-            <MapPin className="h-5 w-5 text-red-600" />
+            <MapPin className="h-5 w-5 text-blue-800" />
             <h2 className="text-xl font-bold text-gray-900">{t("accessTitle")}</h2>
           </div>
 
@@ -200,7 +192,7 @@ export default function CoursePage() {
             href="https://maps.google.com/?q=Versoix,+Genève"
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-4 inline-flex items-center gap-1.5 text-sm text-red-600 hover:underline"
+            className="mt-4 inline-flex items-center gap-1.5 text-sm text-blue-800 hover:underline"
           >
             <ExternalLink className="h-3.5 w-3.5" />
             Voir sur Google Maps

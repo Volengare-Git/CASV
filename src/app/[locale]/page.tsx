@@ -25,7 +25,7 @@ function HeroSection() {
   const t = useTranslations("home");
 
   return (
-    <section className="relative overflow-hidden bg-gray-950 text-white">
+    <section className="relative overflow-hidden bg-blue-950 text-white">
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-10">
         <div
@@ -38,12 +38,12 @@ function HeroSection() {
         />
       </div>
 
-      {/* Red accent bar */}
-      <div className="absolute left-0 top-0 h-1 w-full bg-red-600" />
+      {/* Gold accent bar — like the logo ring */}
+      <div className="absolute left-0 top-0 h-1 w-full bg-yellow-400" />
 
       <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:py-36">
         <div className="max-w-3xl">
-          <Badge className="mb-5 bg-red-600/20 text-red-400 border-red-600/30 hover:bg-red-600/20">
+          <Badge className="mb-5 bg-yellow-400/20 text-yellow-300 border-yellow-400/30 hover:bg-yellow-400/20">
             <Flag className="mr-1.5 h-3 w-3" />
             {t("registrationOpen")}
           </Badge>
@@ -52,21 +52,21 @@ function HeroSection() {
             {t("heroEdition")}
           </h1>
 
-          <p className="mt-3 text-xl font-medium text-red-400">
+          <p className="mt-3 text-xl font-medium text-blue-200">
             {t("heroSubtitle")}
           </p>
 
           <div className="mt-6 flex flex-wrap gap-4 text-gray-300">
             <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-red-400" />
+              <Calendar className="h-4 w-4 text-yellow-400" />
               <span className="text-sm">{t("heroDate")}</span>
             </div>
             <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-red-400" />
+              <Clock className="h-4 w-4 text-yellow-400" />
               <span className="text-sm">{t("heroTime")}</span>
             </div>
             <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-red-400" />
+              <MapPin className="h-4 w-4 text-yellow-400" />
               <span className="text-sm">Versoix, Genève</span>
             </div>
           </div>
@@ -75,7 +75,7 @@ function HeroSection() {
             <Link href="/inscription">
               <Button
                 size="lg"
-                className="bg-red-600 hover:bg-red-700 text-white font-semibold px-8"
+                className="bg-yellow-400 hover:bg-yellow-300 text-blue-950 font-semibold px-8"
               >
                 {t("heroCta")}
                 <ChevronRight className="ml-1 h-4 w-4" />
@@ -104,7 +104,7 @@ function CategoriesSection() {
     {
       key: "hobby",
       icon: Shield,
-      color: "bg-blue-50 text-blue-600 border-blue-100",
+      color: "bg-blue-50 text-blue-700 border-blue-100",
       iconColor: "text-blue-500",
     },
     {
@@ -122,8 +122,8 @@ function CategoriesSection() {
     {
       key: "adultes",
       icon: Trophy,
-      color: "bg-red-50 text-red-600 border-red-100",
-      iconColor: "text-red-500",
+      color: "bg-green-50 text-green-700 border-green-100",
+      iconColor: "text-green-600",
     },
   ] as const;
 
@@ -180,7 +180,7 @@ function InfoSection() {
   ];
 
   return (
-    <section className="bg-gray-950 py-16 text-white sm:py-20">
+    <section className="bg-blue-950 py-16 text-white sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <h2 className="text-center text-2xl font-bold tracking-tight sm:text-3xl">
           {t("infoTitle")}
@@ -192,12 +192,12 @@ function InfoSection() {
               key={i}
               className="rounded-xl bg-white/5 p-6 text-center ring-1 ring-white/10"
             >
-              <p className="text-3xl font-extrabold text-red-400">
+              <p className="text-3xl font-extrabold text-yellow-400">
                 {stat.value}
               </p>
               <p className="mt-1 font-medium text-white">{stat.label}</p>
               {stat.note && (
-                <p className="mt-1 text-sm text-gray-400">{stat.note}</p>
+                <p className="mt-1 text-sm text-blue-200">{stat.note}</p>
               )}
             </div>
           ))}
@@ -255,7 +255,7 @@ function AboutSection() {
                 key={label}
                 className="rounded-xl bg-gray-50 p-5 ring-1 ring-gray-100"
               >
-                <Icon className="mb-2 h-5 w-5 text-red-600" />
+                <Icon className="mb-2 h-5 w-5 text-blue-800" />
                 <p className="font-bold text-gray-900">{label}</p>
                 <p className="text-xs text-gray-500">{sub}</p>
               </div>
@@ -271,16 +271,16 @@ function CtaSection() {
   const t = useTranslations("home");
 
   return (
-    <section className="bg-red-600 py-12 text-white">
+    <section className="bg-blue-900 py-12 text-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
           <div>
             <h2 className="text-xl font-bold">{t("heroEdition")}</h2>
-            <p className="text-red-100">{t("heroDate")}</p>
+            <p className="text-blue-200">{t("heroDate")}</p>
           </div>
           <div className="flex gap-3">
             <Link href="/inscription">
-              <Button className="bg-white text-red-600 hover:bg-red-50 font-semibold">
+              <Button className="bg-yellow-400 hover:bg-yellow-300 text-blue-950 font-semibold">
                 {t("heroCta")}
               </Button>
             </Link>

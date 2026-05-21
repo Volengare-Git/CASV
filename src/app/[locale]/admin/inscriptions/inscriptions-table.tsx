@@ -252,7 +252,7 @@ export default function InscriptionsTable({
                         className="group flex items-center gap-1"
                       >
                         {reg.dossard_number != null ? (
-                          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white">
+                          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-blue-800 text-xs font-bold text-white">
                             {reg.dossard_number}
                           </span>
                         ) : (
@@ -314,7 +314,7 @@ function FilterChip({
       onClick={onClick}
       className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
         active
-          ? "bg-red-600 text-white"
+          ? "bg-blue-800 text-white"
           : "bg-gray-100 text-gray-600 hover:bg-gray-200"
       }`}
     >

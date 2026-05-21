@@ -40,7 +40,7 @@ export default function LoginForm() {
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-600">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-800">
             <Flag className="h-5 w-5 text-white" strokeWidth={2.5} />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">{t("login")}</h1>
@@ -64,7 +64,7 @@ export default function LoginForm() {
               <Label htmlFor="password">{t("password")}</Label>
               <Link
                 href="/forgot-password"
-                className="text-xs text-gray-400 hover:text-red-600 transition-colors"
+                className="text-xs text-gray-400 hover:text-blue-800 transition-colors"
               >
                 {t("forgotPassword")}
               </Link>
@@ -87,7 +87,7 @@ export default function LoginForm() {
           <Button
             type="submit"
             disabled={loading}
-            className="w-full bg-red-600 hover:bg-red-700 text-white"
+            className="w-full bg-blue-800 hover:bg-blue-900 text-white"
           >
             {loading ? "Connexion..." : t("loginBtn")}
           </Button>
@@ -97,7 +97,7 @@ export default function LoginForm() {
           {t("noAccount")}{" "}
           <Link
             href="/register"
-            className="font-medium text-red-600 hover:underline"
+            className="font-medium text-blue-800 hover:underline"
           >
             {t("registerLink")}
           </Link>

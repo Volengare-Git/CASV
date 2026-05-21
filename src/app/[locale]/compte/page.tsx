@@ -127,7 +127,7 @@ export default async function ComptePage() {
           </h2>
           <Link
             href="/inscription"
-            className="text-sm font-medium text-red-600 hover:underline"
+            className="text-sm font-medium text-blue-800 hover:underline"
           >
             S'inscrire →
           </Link>
@@ -140,7 +140,7 @@ export default async function ComptePage() {
             </p>
             <Link
               href="/inscription"
-              className="inline-flex items-center rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors"
+              className="inline-flex items-center rounded-lg bg-blue-800 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors"
             >
               S'inscrire maintenant
             </Link>
@@ -185,7 +185,7 @@ export default async function ComptePage() {
                       </Td>
                       <Td>
                         {reg.dossard_number != null ? (
-                          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white">
+                          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-blue-800 text-xs font-bold text-white">
                             {reg.dossard_number}
                           </span>
                         ) : (

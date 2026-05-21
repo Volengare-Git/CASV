@@ -59,7 +59,6 @@ export default function BenevolesForm({ posts, editionId }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // Honeypot : un bot remplit ce champ invisible, un humain jamais
     if (honeypot) { setSubmitted(true); return; }
     setLoading(true);
     setError(null);
@@ -119,7 +118,7 @@ export default function BenevolesForm({ posts, editionId }: Props) {
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
       <div className="mb-8">
-        <Badge className="mb-3 bg-red-50 text-red-600 border-red-100 hover:bg-red-50">
+        <Badge className="mb-3 bg-blue-50 text-blue-800 border-blue-100 hover:bg-blue-50">
           42ème Grand-Prix de Versoix
         </Badge>
         <h1 className="text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl">
@@ -131,7 +130,7 @@ export default function BenevolesForm({ posts, editionId }: Props) {
       {/* Postes disponibles */}
       <div className="mb-8 rounded-xl bg-gray-50 p-5 ring-1 ring-gray-100">
         <div className="flex items-center gap-2 mb-4">
-          <Users className="h-4 w-4 text-red-600" />
+          <Users className="h-4 w-4 text-blue-800" />
           <h2 className="font-semibold text-gray-900">{t("postsTitle")}</h2>
         </div>
         <div className="grid gap-2 sm:grid-cols-2">
@@ -154,51 +153,31 @@ export default function BenevolesForm({ posts, editionId }: Props) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Honeypot anti-bot : caché visuellement, jamais rempli par un humain */}
+        {/* Honeypot anti-bot */}
         <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", opacity: 0, pointerEvents: "none" }}>
           <label htmlFor="surname">Ne pas remplir</label>
           <input id="surname" name="surname" type="text" tabIndex={-1} autoComplete="off" value={honeypot} onChange={(e) => setHoneypot(e.target.value)} />
         </div>
+
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="firstName">Prénom *</Label>
-            <Input
-              id="firstName"
-              value={formData.firstName}
-              onChange={(e) => setField("firstName", e.target.value)}
-              required
-            />
+            <Input id="firstName" value={formData.firstName} onChange={(e) => setField("firstName", e.target.value)} required />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="lastName">Nom *</Label>
-            <Input
-              id="lastName"
-              value={formData.lastName}
-              onChange={(e) => setField("lastName", e.target.value)}
-              required
-            />
+            <Input id="lastName" value={formData.lastName} onChange={(e) => setField("lastName", e.target.value)} required />
           </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="email">Email *</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) => setField("email", e.target.value)}
-              required
-            />
+            <Input id="email" type="email" value={formData.email} onChange={(e) => setField("email", e.target.value)} required />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="phone">Téléphone</Label>
-            <Input
-              id="phone"
-              type="tel"
-              value={formData.phone}
-              onChange={(e) => setField("phone", e.target.value)}
-            />
+            <Input id="phone" type="tel" value={formData.phone} onChange={(e) => setField("phone", e.target.value)} />
           </div>
         </div>
 
@@ -246,7 +225,7 @@ export default function BenevolesForm({ posts, editionId }: Props) {
         <Button
           type="submit"
           disabled={!formData.firstName || !formData.lastName || !formData.email || loading}
-          className="w-full bg-red-600 hover:bg-red-700 text-white sm:w-auto"
+          className="w-full bg-blue-800 hover:bg-blue-900 text-white sm:w-auto"
         >
           <Send className="mr-2 h-4 w-4" />
           {loading ? "Envoi..." : t("confirm")}
