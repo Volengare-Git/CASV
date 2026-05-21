@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Link, usePathname } from "@/i18n/routing";
+import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -17,10 +17,16 @@ import { Separator } from "@/components/ui/separator";
 import LocaleSwitcher from "@/components/locale-switcher";
 import { Menu, X, Flag } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
 
-export default function Navigation() {
+type Props = {
+  user: { email: string | undefined } | null;
+};
+
+export default function Navigation({ user }: Props) {
   const t = useTranslations("nav");
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const raceLinks = [
@@ -33,6 +39,13 @@ export default function Navigation() {
 
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(href + "/");
+
+  async function handleLogout() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/");
+    router.refresh();
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
@@ -130,17 +143,34 @@ export default function Navigation() {
         <div className="flex items-center gap-2">
           <LocaleSwitcher />
 
-          <Link href="/login" className="hidden lg:block">
-            <Button variant="outline" size="sm">
-              {t("login")}
-            </Button>
-          </Link>
-
-          <Link href="/inscription" className="hidden lg:block">
-            <Button size="sm" className="bg-red-600 hover:bg-red-700 text-white">
-              {t("register")}
-            </Button>
-          </Link>
+          {user ? (
+            <>
+              <Link href="/compte" className="hidden lg:block">
+                <Button variant="outline" size="sm">
+                  {t("myAccount")}
+                </Button>
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="hidden lg:block text-sm text-gray-500 hover:text-gray-900 transition-colors px-2 py-1"
+              >
+                {t("logout")}
+              </button>
+            </>
+          ) : (
+            <>
+              <Link href="/login" className="hidden lg:block">
+                <Button variant="outline" size="sm">
+                  {t("login")}
+                </Button>
+              </Link>
+              <Link href="/inscription" className="hidden lg:block">
+                <Button size="sm" className="bg-red-600 hover:bg-red-700 text-white">
+                  {t("register")}
+                </Button>
+              </Link>
+            </>
+          )}
 
           {/* Mobile menu trigger */}
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
@@ -202,19 +232,38 @@ export default function Navigation() {
 
                 <Separator className="my-2" />
 
-                <Link
-                  href="/login"
-                  onClick={() => setMobileOpen(false)}
-                  className="rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                >
-                  {t("login")}
-                </Link>
-
-                <Link href="/inscription" onClick={() => setMobileOpen(false)}>
-                  <Button className="mt-2 w-full bg-red-600 hover:bg-red-700 text-white">
-                    {t("register")}
-                  </Button>
-                </Link>
+                {user ? (
+                  <>
+                    <Link
+                      href="/compte"
+                      onClick={() => setMobileOpen(false)}
+                      className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-red-600"
+                    >
+                      {t("myAccount")}
+                    </Link>
+                    <button
+                      onClick={() => { setMobileOpen(false); handleLogout(); }}
+                      className="rounded-md px-3 py-2 text-sm text-left text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                    >
+                      {t("logout")}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/login"
+                      onClick={() => setMobileOpen(false)}
+                      className="rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                    >
+                      {t("login")}
+                    </Link>
+                    <Link href="/inscription" onClick={() => setMobileOpen(false)}>
+                      <Button className="mt-2 w-full bg-red-600 hover:bg-red-700 text-white">
+                        {t("register")}
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </nav>
             </SheetContent>
           </Sheet>

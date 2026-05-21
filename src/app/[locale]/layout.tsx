@@ -7,6 +7,7 @@ import { routing } from "@/i18n/routing";
 import Navigation from "@/components/navigation";
 import Footer from "@/components/footer";
 import { Toaster } from "@/components/ui/sonner";
+import { createClient } from "@/lib/supabase/server";
 import "../globals.css";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
@@ -34,12 +35,14 @@ export default async function LocaleLayout({
   }
 
   const messages = await getMessages();
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
   return (
     <html lang={locale} className={`${geist.variable} h-full`}>
       <body className="flex min-h-full flex-col bg-white text-gray-900 antialiased">
         <NextIntlClientProvider messages={messages}>
-          <Navigation />
+          <Navigation user={user ? { email: user.email } : null} />
           <main className="flex-1">{children}</main>
           <Footer />
           <Toaster richColors position="top-right" />
