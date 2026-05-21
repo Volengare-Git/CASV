@@ -206,8 +206,7 @@ export default function BenevolesTable({
     wantsMembership: volunteers.filter((v) => v.wants_membership === true).length,
   };
 
-  // --- Export CSV ---
-  function exportCSV() {
+  function buildExportData() {
     const headers = [
       "Nom",
       "Prénom",
@@ -221,7 +220,6 @@ export default function BenevolesTable({
       "Notes",
       "Date inscription",
     ];
-
     const rows = volunteers.map((v) => {
       const assignedNames = (v.assigned_post_ids ?? [])
         .map((id) => posts.find((p) => p.id === id)?.name ?? id)
@@ -246,7 +244,12 @@ export default function BenevolesTable({
         new Date(v.created_at).toLocaleDateString("fr-CH"),
       ];
     });
+    return { headers, rows };
+  }
 
+  // --- Export CSV ---
+  function exportCSV() {
+    const { headers, rows } = buildExportData();
     const csvContent = [headers, ...rows]
       .map((row) =>
         row
@@ -266,44 +269,7 @@ export default function BenevolesTable({
 
   // --- Export XLSX ---
   function exportXLSX() {
-    const headers = [
-      "Nom",
-      "Prénom",
-      "Email",
-      "Téléphone",
-      "Tranche d'âge",
-      "Veut adhérer",
-      "Statut",
-      "Postes assignés",
-      ...tasks.map((t) => t.label),
-      "Notes",
-      "Date inscription",
-    ];
-
-    const rows = volunteers.map((v) => {
-      const assignedNames = (v.assigned_post_ids ?? [])
-        .map((id) => posts.find((p) => p.id === id)?.name ?? id)
-        .join(" | ");
-      return [
-        v.guest_last_name ?? v.profiles?.last_name ?? "",
-        v.guest_first_name ?? v.profiles?.first_name ?? "",
-        v.guest_email ?? "",
-        v.guest_phone ?? "",
-        getAgeLabel(v.age_group),
-        v.wants_membership === true ? "Oui" : v.wants_membership === false ? "Non" : "",
-        STATUS_STYLES[v.status].label,
-        assignedNames,
-        ...tasks.map((t) => {
-          const val = v.task_interests?.[t.id];
-          if (val === "oui") return "Oui";
-          if (val === "si_necessaire") return "Si nécessaire";
-          if (val === "non") return "Non";
-          return "";
-        }),
-        v.notes ?? "",
-        new Date(v.created_at).toLocaleDateString("fr-CH"),
-      ];
-    });
+    const { headers, rows } = buildExportData();
 
     const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
 

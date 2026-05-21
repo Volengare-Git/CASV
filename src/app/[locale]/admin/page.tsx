@@ -1,23 +1,10 @@
 import type { Metadata } from "next";
 import { Link } from "@/i18n/routing";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { computeIsOpen } from "@/lib/utils";
 import RegistrationToggle from "./registration-toggle";
 
 export const metadata: Metadata = { title: "Administration — CASV" };
-
-function computeIsOpen(edition: {
-  is_registration_open: boolean | null;
-  registration_opens_at: string;
-  registration_closes_at: string;
-}): boolean {
-  if (edition.is_registration_open === true) return true;
-  if (edition.is_registration_open === false) return false;
-  const now = new Date();
-  return (
-    now >= new Date(edition.registration_opens_at) &&
-    now <= new Date(edition.registration_closes_at)
-  );
-}
 
 export default async function AdminDashboardPage() {
   const admin = createAdminClient();

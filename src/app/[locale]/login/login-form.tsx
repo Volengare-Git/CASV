@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Flag } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 export default function LoginForm({ callbackError }: { callbackError?: string }) {
   const t = useTranslations("auth");
@@ -24,7 +25,6 @@ export default function LoginForm({ callbackError }: { callbackError?: string })
     const password = form.get("password") as string;
 
     try {
-      const { createClient } = await import("@/lib/supabase/client");
       const supabase = createClient();
 
       const { error } = await supabase.auth.signInWithPassword({ email, password });

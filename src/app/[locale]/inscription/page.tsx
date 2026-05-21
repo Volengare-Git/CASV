@@ -3,25 +3,12 @@ import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { computeIsOpen } from "@/lib/utils";
 import InscriptionForm from "./inscription-form";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("inscription");
   return { title: t("title") };
-}
-
-function computeIsOpen(edition: {
-  is_registration_open: boolean | null;
-  registration_opens_at: string;
-  registration_closes_at: string;
-}): boolean {
-  if (edition.is_registration_open === true) return true;
-  if (edition.is_registration_open === false) return false;
-  const now = new Date();
-  return (
-    now >= new Date(edition.registration_opens_at) &&
-    now <= new Date(edition.registration_closes_at)
-  );
 }
 
 export default async function InscriptionPage() {
