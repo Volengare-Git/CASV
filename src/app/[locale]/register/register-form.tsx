@@ -45,15 +45,7 @@ export default function RegisterForm() {
       });
       if (signUpError) throw signUpError;
 
-      if (data.user) {
-        // Create profile record
-        await supabase.from("profiles").insert({
-          id: data.user.id,
-          first_name: firstName,
-          last_name: lastName,
-          role: "participant",
-        });
-      }
+      // Le profil est créé automatiquement par le trigger on_auth_user_created
 
       router.push("/compte");
     } catch (err: unknown) {
