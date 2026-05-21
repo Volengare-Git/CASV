@@ -88,16 +88,30 @@ export interface Database {
       volunteer_registrations: {
         Row: {
           id: string;
-          user_id: string;
+          user_id: string | null;
           edition_id: string;
           preferred_post_id: string | null;
           assigned_post_id: string | null;
           assignment_mode: AssignmentMode;
           status: VolunteerStatus;
           notes: string | null;
+          guest_first_name: string | null;
+          guest_last_name: string | null;
+          guest_email: string | null;
           created_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["volunteer_registrations"]["Row"], "id" | "created_at">;
+        Insert: {
+          edition_id: string;
+          preferred_post_id?: string | null;
+          assigned_post_id?: string | null;
+          assignment_mode?: AssignmentMode;
+          status?: VolunteerStatus;
+          notes?: string | null;
+          user_id?: string | null;
+          guest_first_name?: string | null;
+          guest_last_name?: string | null;
+          guest_email?: string | null;
+        };
         Update: Partial<Database["public"]["Tables"]["volunteer_registrations"]["Insert"]>;
         Relationships: [];
       };

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,24 +17,32 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Send, Users, Clock } from "lucide-react";
 
-// Placeholder posts — will come from Supabase once the DB is ready
-const POSTS = [
-  { id: "securite", name: "Sécurité du parcours", time: "7h00–17h00", capacity: 10 },
-  { id: "dossards", name: "Remise des dossards", time: "8h30–10h00", capacity: 4 },
-  { id: "technique", name: "Contrôle technique", time: "8h00–10h00", capacity: 3 },
-  { id: "depart", name: "Gestion du départ", time: "10h00–16h00", capacity: 4 },
-  { id: "chronometrage", name: "Chronométrage", time: "10h00–16h00", capacity: 2 },
-  { id: "restauration", name: "Restauration", time: "11h00–15h00", capacity: 8 },
-  { id: "podium", name: "Cérémonie & podium", time: "16h30–18h00", capacity: 3 },
-  { id: "logistique", name: "Logistique générale", time: "7h00–18h00", capacity: 5 },
-];
+type Post = {
+  id: string;
+  name: string;
+  start_time: string;
+  end_time: string;
+  capacity: number;
+};
 
-export default function BenevolesForm() {
+interface Props {
+  posts: Post[];
+  editionId: string;
+}
+
+export default function BenevolesForm({ posts, editionId }: Props) {
   const t = useTranslations("volunteers");
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [prefs, setPrefs] = useState<string[]>(["", "", ""]);
-  const [formData, setFormData] = useState({ firstName: "", lastName: "", email: "", phone: "", notes: "" });
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    notes: "",
+  });
 
   function setField(field: string, value: string) {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -50,8 +59,41 @@ export default function BenevolesForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    // TODO: save to Supabase volunteer_registrations
-    await new Promise((r) => setTimeout(r, 800));
+    setError(null);
+
+    const supabase = createClient();
+
+    const noteParts: string[] = [];
+    if (formData.phone) noteParts.push(`Tél: ${formData.phone}`);
+    if (formData.notes) noteParts.push(formData.notes);
+    if (prefs[1]) {
+      const p2 = posts.find((p) => p.id === prefs[1]);
+      if (p2) noteParts.push(`Préf. 2: ${p2.name}`);
+    }
+    if (prefs[2]) {
+      const p3 = posts.find((p) => p.id === prefs[2]);
+      if (p3) noteParts.push(`Préf. 3: ${p3.name}`);
+    }
+
+    const { error: insertError } = await supabase
+      .from("volunteer_registrations")
+      .insert({
+        edition_id: editionId,
+        preferred_post_id: prefs[0] || null,
+        guest_first_name: formData.firstName,
+        guest_last_name: formData.lastName,
+        guest_email: formData.email,
+        notes: noteParts.join(" | ") || null,
+        status: "pending",
+        assignment_mode: "auto",
+      });
+
+    if (insertError) {
+      setError("Une erreur est survenue. Veuillez réessayer.");
+      setLoading(false);
+      return;
+    }
+
     setSubmitted(true);
     setLoading(false);
   }
@@ -67,7 +109,7 @@ export default function BenevolesForm() {
   }
 
   const availablePosts = (excludeIndexes: number[]) =>
-    POSTS.filter(
+    posts.filter(
       (p) => !excludeIndexes.map((i) => prefs[i]).filter(Boolean).includes(p.id)
     );
 
@@ -90,7 +132,7 @@ export default function BenevolesForm() {
           <h2 className="font-semibold text-gray-900">{t("postsTitle")}</h2>
         </div>
         <div className="grid gap-2 sm:grid-cols-2">
-          {POSTS.map((post) => (
+          {posts.map((post) => (
             <div
               key={post.id}
               className="flex items-center justify-between rounded-lg bg-white px-3 py-2 ring-1 ring-gray-100"
@@ -99,7 +141,7 @@ export default function BenevolesForm() {
                 <p className="text-sm font-medium text-gray-800">{post.name}</p>
                 <p className="flex items-center gap-1 text-xs text-gray-400">
                   <Clock className="h-3 w-3" />
-                  {post.time}
+                  {post.start_time.slice(0, 5)}–{post.end_time.slice(0, 5)}
                 </p>
               </div>
               <span className="text-xs text-gray-400">{post.capacity} places</span>
@@ -152,7 +194,7 @@ export default function BenevolesForm() {
           </div>
         </div>
 
-        {/* Preferences */}
+        {/* Préférences */}
         <div className="space-y-3">
           <Label>{t("preferences")}</Label>
           {[0, 1, 2].map((i) => (
@@ -168,7 +210,7 @@ export default function BenevolesForm() {
                   <SelectItem value="">{t("noPref")}</SelectItem>
                   {availablePosts([0, 1, 2].filter((idx) => idx !== i)).map((post) => (
                     <SelectItem key={post.id} value={post.id}>
-                      {post.name} · {post.time}
+                      {post.name} · {post.start_time.slice(0, 5)}–{post.end_time.slice(0, 5)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -188,6 +230,10 @@ export default function BenevolesForm() {
             className="resize-none"
           />
         </div>
+
+        {error && (
+          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
+        )}
 
         <Button
           type="submit"
