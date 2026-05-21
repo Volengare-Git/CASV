@@ -66,8 +66,26 @@ export interface Database {
           notes: string | null;
           created_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["registrations"]["Row"], "id" | "created_at">;
-        Update: Partial<Database["public"]["Tables"]["registrations"]["Insert"]>;
+        Insert: {
+          user_id: string;
+          edition_id: string;
+          category: Category;
+          vehicle_name: string;
+          payment_status?: PaymentStatus;
+          payment_method?: PaymentMethod;
+          stripe_payment_intent_id?: string | null;
+          dossard_number?: number | null;
+          notes?: string | null;
+        };
+        Update: {
+          category?: Category;
+          vehicle_name?: string;
+          payment_status?: PaymentStatus;
+          payment_method?: PaymentMethod;
+          stripe_payment_intent_id?: string | null;
+          dossard_number?: number | null;
+          notes?: string | null;
+        };
         Relationships: [];
       };
       volunteer_posts: {
