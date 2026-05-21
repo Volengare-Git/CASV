@@ -26,6 +26,7 @@ export default function LoginForm() {
     try {
       const { createClient } = await import("@/lib/supabase/client");
       const supabase = createClient();
+
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       router.push("/compte");
@@ -62,7 +63,7 @@ export default function LoginForm() {
             <div className="flex items-center justify-between">
               <Label htmlFor="password">{t("password")}</Label>
               <Link
-                href="/login"
+                href="/forgot-password"
                 className="text-xs text-gray-400 hover:text-red-600 transition-colors"
               >
                 {t("forgotPassword")}
