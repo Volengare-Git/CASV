@@ -18,6 +18,7 @@ export type PlanVolunteer = {
   reg_id: string;
   name: string;
   assigned_post_ids: string[];
+  task_interests: Record<string, string> | null;
 };
 
 export default async function PlanningAdminPage() {
@@ -31,7 +32,7 @@ export default async function PlanningAdminPage() {
 
   const editionId = edition?.id ?? "";
 
-  const [{ data: rawPosts }, { data: rawVols }] = await Promise.all([
+  const [{ data: rawPosts }, { data: rawVols }, { data: rawTasks }] = await Promise.all([
     admin
       .from("volunteer_posts")
       .select("id, name, order_code, time_label, end_time, capacity")
@@ -39,9 +40,13 @@ export default async function PlanningAdminPage() {
       .order("order_code", { ascending: true, nullsFirst: false }),
     admin
       .from("volunteer_registrations")
-      .select("id, assigned_post_ids, guest_first_name, guest_last_name, profiles(first_name, last_name)")
+      .select("id, assigned_post_ids, task_interests, guest_first_name, guest_last_name, profiles(first_name, last_name)")
+      .eq("edition_id", editionId),
+    admin
+      .from("volunteer_tasks")
+      .select("id, label")
       .eq("edition_id", editionId)
-      .order("guest_last_name", { ascending: true }),
+      .order("display_order"),
   ]);
 
   type RawPost = {
@@ -50,25 +55,28 @@ export default async function PlanningAdminPage() {
   };
   type RawVol = {
     id: string; assigned_post_ids: string[] | null;
+    task_interests: Record<string, string> | null;
     guest_first_name: string | null; guest_last_name: string | null;
     profiles: { first_name: string; last_name: string } | null;
   };
 
   const posts = (rawPosts ?? []) as RawPost[];
   const vols  = (rawVols  ?? []) as RawVol[];
+  const tasks = (rawTasks ?? []) as { id: string; label: string }[];
 
   // Build postId → volunteers map
   const postVolunteers = new Map<string, { reg_id: string; name: string }[]>();
   for (const post of posts) postVolunteers.set(post.id, []);
 
-  for (const vol of vols) {
-    const displayName = vol.profiles
-      ? `${vol.profiles.last_name} ${vol.profiles.first_name}`
-      : `${vol.guest_last_name ?? ""} ${vol.guest_first_name ?? ""}`.trim() || "—";
+  function volName(v: RawVol): string {
+    if (v.profiles) return `${v.profiles.last_name} ${v.profiles.first_name}`;
+    return `${v.guest_last_name ?? ""} ${v.guest_first_name ?? ""}`.trim() || "—";
+  }
 
+  for (const vol of vols) {
     for (const pid of (vol.assigned_post_ids ?? [])) {
       const bucket = postVolunteers.get(pid);
-      if (bucket) bucket.push({ reg_id: vol.id, name: displayName });
+      if (bucket) bucket.push({ reg_id: vol.id, name: volName(vol) });
     }
   }
 
@@ -84,11 +92,10 @@ export default async function PlanningAdminPage() {
 
   const planVols: PlanVolunteer[] = vols
     .map(v => ({
-      reg_id: v.id,
-      name: v.profiles
-        ? `${v.profiles.last_name} ${v.profiles.first_name}`
-        : `${v.guest_last_name ?? ""} ${v.guest_first_name ?? ""}`.trim() || "—",
+      reg_id:            v.id,
+      name:              volName(v),
       assigned_post_ids: v.assigned_post_ids ?? [],
+      task_interests:    v.task_interests,
     }))
     .sort((a, b) => a.name.localeCompare(b.name, "fr"));
 
@@ -101,7 +108,7 @@ export default async function PlanningAdminPage() {
           <strong>{edition?.name ?? "—"}</strong>
         </p>
       </div>
-      <PlanningView posts={planPosts} volunteers={planVols} />
+      <PlanningView posts={planPosts} volunteers={planVols} tasks={tasks} />
     </div>
   );
 }
