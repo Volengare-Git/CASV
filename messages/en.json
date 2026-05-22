@@ -10,6 +10,10 @@
     "register": "Register",
     "volunteers": "Volunteers",
     "association": "Association",
+    "committee": "Committee",
+    "history": "History",
+    "local": "Workshop",
+    "construction": "Construction",
     "contact": "Contact",
     "login": "Sign in",
     "logout": "Sign out",
@@ -137,12 +141,18 @@
   },
   "association": {
     "title": "The Association",
+    "subtitle": "Since 1984, we have been organizing the Versoix soap box race — a family-friendly, festive event open to all youth in Geneva.",
     "history": "History",
-    "committee": "Committee",
-    "statutes": "Statutes",
+    "historySubtitle": "Four decades of racing and passion",
+    "committee": "The Committee",
+    "committeeSubtitle": "The members who bring the association to life",
+    "local": "Our Workshop",
+    "localSubtitle": "Construction workshop open every Tuesday evening",
     "construction": "Construction",
+    "constructionSubtitle": "Guides and dimensions to build your soap box",
+    "statutes": "Statutes",
     "rental": "Rental",
-    "historyText": "Founded in the 1980s, the Versoix Soap Box Association organizes the annual Grand-Prix de Versoix. For over 40 editions, this family event brings together young drivers, volunteers, and spectators for a day of celebration and sport."
+    "backToAssociation": "← Association"
   },
   "contact": {
     "title": "Contact",

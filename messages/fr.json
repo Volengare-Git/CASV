@@ -10,6 +10,10 @@
     "register": "S'inscrire",
     "volunteers": "Bénévoles",
     "association": "Association",
+    "committee": "Le Comité",
+    "history": "Historique",
+    "local": "Notre Local",
+    "construction": "Construction",
     "contact": "Contact",
     "login": "Connexion",
     "logout": "Déconnexion",
@@ -137,12 +141,18 @@
   },
   "association": {
     "title": "L'Association",
+    "subtitle": "Depuis 1984, nous organisons la course de caisses à savon de Versoix — un événement familial, festif et convivial ouvert à toute la jeunesse genevoise.",
     "history": "Historique",
+    "historySubtitle": "Quatre décennies de course et de passion",
     "committee": "Le Comité",
-    "statutes": "Statuts",
+    "committeeSubtitle": "Les membres qui font vivre l'association",
+    "local": "Notre Local",
+    "localSubtitle": "Atelier de construction ouvert tous les mardis soirs",
     "construction": "Construction",
+    "constructionSubtitle": "Guides et dimensions pour fabriquer votre caisse",
+    "statutes": "Statuts",
     "rental": "Location",
-    "historyText": "Fondée dans les années 1980, l'Association des Caisses à Savon de Versoix organise chaque année le Grand-Prix de Versoix. Depuis plus de 40 éditions, cet événement familial rassemble jeunes pilotes, bénévoles et spectateurs pour une journée de fête et de sport."
+    "backToAssociation": "← Association"
   },
   "contact": {
     "title": "Contact",

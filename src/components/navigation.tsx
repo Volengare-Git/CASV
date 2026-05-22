@@ -38,6 +38,14 @@ export default function Navigation({ user }: Props) {
     { href: "/resultats", label: t("results") },
   ];
 
+  const associationLinks = [
+    { href: "/association", label: t("association") },
+    { href: "/association/comite", label: t("committee") },
+    { href: "/association/historique", label: t("history") },
+    { href: "/association/local", label: t("local") },
+    { href: "/association/construction", label: t("construction") },
+  ];
+
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(href + "/");
 
@@ -119,15 +127,25 @@ export default function Navigation({ user }: Props) {
             </NavigationMenuItem>
 
             <NavigationMenuItem>
-              <Link
-                href="/association"
-                className={cn(
-                  navigationMenuTriggerStyle(),
-                  isActive("/association") ? "text-blue-800" : ""
-                )}
+              <NavigationMenuTrigger
+                className={cn(isActive("/association") ? "text-blue-800" : "")}
               >
                 {t("association")}
-              </Link>
+              </NavigationMenuTrigger>
+              <NavigationMenuContent>
+                <ul className="grid w-52 gap-1 p-2">
+                  {associationLinks.map((link) => (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href as "/association"}
+                        className="block rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-800 transition-colors"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </NavigationMenuContent>
             </NavigationMenuItem>
 
             <NavigationMenuItem>
@@ -213,8 +231,6 @@ export default function Navigation({ user }: Props) {
                 {[
                   { href: "/inscription", label: t("register") },
                   { href: "/benevoles", label: t("volunteers") },
-                  { href: "/association", label: t("association") },
-                  { href: "/contact", label: t("contact") },
                 ].map((link) => (
                   <Link
                     key={link.href}
@@ -230,6 +246,40 @@ export default function Navigation({ user }: Props) {
                     {link.label}
                   </Link>
                 ))}
+
+                <Separator className="my-2" />
+                <p className="mb-1 px-3 text-xs font-semibold uppercase tracking-widest text-gray-400">
+                  {t("association")}
+                </p>
+                {associationLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href as "/association"}
+                    onClick={() => setMobileOpen(false)}
+                    className={cn(
+                      "rounded-md px-3 py-2 text-sm transition-colors",
+                      isActive(link.href) && link.href !== "/association"
+                        ? "bg-blue-50 text-blue-800 font-medium"
+                        : "text-gray-700 hover:bg-blue-50 hover:text-blue-800"
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+
+                <Separator className="my-2" />
+                <Link
+                  href="/contact"
+                  onClick={() => setMobileOpen(false)}
+                  className={cn(
+                    "rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                    isActive("/contact")
+                      ? "bg-blue-50 text-blue-800"
+                      : "text-gray-700 hover:bg-blue-50 hover:text-blue-800"
+                  )}
+                >
+                  {t("contact")}
+                </Link>
 
                 <Separator className="my-2" />
 
