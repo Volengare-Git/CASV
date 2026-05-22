@@ -1,17 +1,25 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 import { assertAdmin } from "@/lib/supabase/assert-admin";
 
-export type PostInput = {
-  name: string;
-  order_code: number | null;
-  time_label: string | null;
-  end_time: string | null;
-  capacity: number;
-};
+const uuid = z.string().uuid("ID invalide");
+
+const postInputSchema = z.object({
+  name: z.string().min(1).max(200),
+  order_code: z.number().int().min(0).max(99999).nullable(),
+  time_label: z.string().max(50).nullable(),
+  end_time: z.string().max(10).nullable(),
+  capacity: z.number().int().min(1).max(999),
+});
+
+export type PostInput = z.infer<typeof postInputSchema>;
 
 export async function createPost(editionId: string, data: PostInput, displayOrder: number) {
+  uuid.parse(editionId);
+  postInputSchema.parse(data);
+  z.number().int().min(0).max(9999).parse(displayOrder);
   const admin = await assertAdmin();
   const { error } = await admin.from("volunteer_posts").insert({
     edition_id: editionId,
@@ -29,6 +37,8 @@ export async function createPost(editionId: string, data: PostInput, displayOrde
 }
 
 export async function updatePost(id: string, data: PostInput) {
+  uuid.parse(id);
+  postInputSchema.parse(data);
   const admin = await assertAdmin();
   const { error } = await admin
     .from("volunteer_posts")
@@ -45,6 +55,7 @@ export async function updatePost(id: string, data: PostInput) {
 }
 
 export async function deletePost(id: string) {
+  uuid.parse(id);
   const admin = await assertAdmin();
   const { error } = await admin.from("volunteer_posts").delete().eq("id", id);
   if (error) throw new Error(error.message);
@@ -52,6 +63,7 @@ export async function deletePost(id: string) {
 }
 
 export async function reorderPosts(ids: string[]) {
+  z.array(uuid).max(500).parse(ids);
   const admin = await assertAdmin();
   await Promise.all(
     ids.map((id, idx) =>

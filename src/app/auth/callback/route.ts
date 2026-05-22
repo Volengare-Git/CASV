@@ -44,7 +44,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Other flows (magic link, email confirmation) → use next param or account page
-    const destination = next.startsWith("/") ? `${origin}${next}` : `${origin}/compte`;
+    // Guard against open-redirect: require a single leading slash (rejects //evil.com)
+    const destination = /^\/[^/]/.test(next) ? `${origin}${next}` : `${origin}/compte`;
     return NextResponse.redirect(destination);
   }
 

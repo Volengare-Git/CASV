@@ -1,9 +1,13 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 import { assertAdmin } from "@/lib/supabase/assert-admin";
 
+const uuid = z.string().uuid("ID invalide");
+
 export async function validatePayment(registrationId: string) {
+  uuid.parse(registrationId);
   const admin = await assertAdmin();
   const { error } = await admin
     .from("registrations")
@@ -14,6 +18,7 @@ export async function validatePayment(registrationId: string) {
 }
 
 export async function cancelRegistration(registrationId: string) {
+  uuid.parse(registrationId);
   const admin = await assertAdmin();
   const { error } = await admin
     .from("registrations")
@@ -24,6 +29,8 @@ export async function cancelRegistration(registrationId: string) {
 }
 
 export async function assignDossard(registrationId: string, dossard: number | null) {
+  uuid.parse(registrationId);
+  z.number().int().min(1).max(999).nullable().parse(dossard);
   const admin = await assertAdmin();
   const { error } = await admin
     .from("registrations")
@@ -34,6 +41,8 @@ export async function assignDossard(registrationId: string, dossard: number | nu
 }
 
 export async function setRegistrationOpen(editionId: string, value: boolean | null) {
+  uuid.parse(editionId);
+  z.boolean().nullable().parse(value);
   const admin = await assertAdmin();
   const { error } = await admin
     .from("editions")

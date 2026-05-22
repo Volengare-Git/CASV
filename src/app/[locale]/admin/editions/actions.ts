@@ -1,19 +1,25 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 import { assertAdmin } from "@/lib/supabase/assert-admin";
 
-export interface EditionFormData {
-  year: number;
-  name: string;
-  event_date: string;
-  registration_opens_at: string;
-  registration_closes_at: string;
-  max_pilots: number;
-  price_chf: number;
-}
+const uuid = z.string().uuid("ID invalide");
+
+const editionSchema = z.object({
+  year: z.number().int().min(2000).max(2100),
+  name: z.string().min(1).max(200),
+  event_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Format date invalide (YYYY-MM-DD)"),
+  registration_opens_at: z.string().datetime({ offset: true }),
+  registration_closes_at: z.string().datetime({ offset: true }),
+  max_pilots: z.number().int().min(1).max(500),
+  price_chf: z.number().min(0).max(9999),
+});
+
+export type EditionFormData = z.infer<typeof editionSchema>;
 
 export async function createEdition(data: EditionFormData) {
+  editionSchema.parse(data);
   const admin = await assertAdmin();
 
   // Get the currently active edition to copy volunteer posts
@@ -86,6 +92,7 @@ export async function createEdition(data: EditionFormData) {
 }
 
 export async function activateEdition(editionId: string) {
+  uuid.parse(editionId);
   const admin = await assertAdmin();
 
   // Deactivate all editions
@@ -103,6 +110,8 @@ export async function activateEdition(editionId: string) {
 }
 
 export async function updateEdition(editionId: string, data: Partial<EditionFormData>) {
+  uuid.parse(editionId);
+  editionSchema.partial().parse(data);
   const admin = await assertAdmin();
 
   const { error } = await admin
