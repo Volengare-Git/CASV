@@ -58,7 +58,7 @@ export default function CoursePage() {
         <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
           {t("title")}
         </h1>
-        <p className="mt-2 text-gray-500">Dimanche 3 mai 2027 · Versoix, Genève</p>
+        <p className="mt-2 text-gray-500">Dimanche 2 mai 2027 · Versoix, Genève</p>
       </div>
 
       <div className="space-y-12">

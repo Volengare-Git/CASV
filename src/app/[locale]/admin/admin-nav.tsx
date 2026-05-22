@@ -8,6 +8,7 @@ const TABS = [
   { label: "Inscriptions", href: "/admin/inscriptions" },
   { label: "Bénévoles", href: "/admin/benevoles", exact: true },
   { label: "Tâches bénévoles", href: "/admin/benevoles/taches" },
+  { label: "Résultats", href: "/admin/resultats" },
   { label: "Éditions", href: "/admin/editions" },
 ];
 
