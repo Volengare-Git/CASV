@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Link, useRouter } from "@/i18n/routing";
+import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,7 +11,6 @@ import { createClient } from "@/lib/supabase/client";
 
 export default function LoginForm({ callbackError }: { callbackError?: string }) {
   const t = useTranslations("auth");
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(callbackError ?? null);
 
@@ -29,8 +28,10 @@ export default function LoginForm({ callbackError }: { callbackError?: string })
 
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      router.refresh();
-      router.push("/compte");
+      // Hard navigation: force a full page load so the server re-reads the
+      // fresh session cookie — avoids the race between router.refresh() and
+      // router.push() which could serve a stale cached layout.
+      window.location.href = "/compte";
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Erreur de connexion");
       setLoading(false);

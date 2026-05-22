@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { Link, usePathname, useRouter } from "@/i18n/routing";
+import { Link, usePathname } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -27,7 +27,6 @@ type Props = {
 export default function Navigation({ user }: Props) {
   const t = useTranslations("nav");
   const pathname = usePathname();
-  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const raceLinks = [
@@ -52,8 +51,10 @@ export default function Navigation({ user }: Props) {
   async function handleLogout() {
     const supabase = createClient();
     await supabase.auth.signOut();
-    router.push("/");
-    router.refresh();
+    // Hard navigation after sign-out: ensures the server renders the layout
+    // fresh with no user session, avoiding the stale router cache showing
+    // "Mon compte" (or "Connexion") from a prefetched page.
+    window.location.href = "/";
   }
 
   return (
