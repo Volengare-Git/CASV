@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
+import { formatEventDate } from "@/lib/utils";
 import BenevolesForm from "./benevoles-form";
 
 export const metadata: Metadata = {
@@ -13,7 +14,7 @@ export default async function BenevolesPage() {
 
   const { data: edition } = await supabase
     .from("editions")
-    .select("id")
+    .select("id, event_date")
     .eq("is_active", true)
     .single();
 
@@ -23,10 +24,13 @@ export default async function BenevolesPage() {
     .eq("edition_id", edition?.id ?? "")
     .order("display_order");
 
+  const eventDate = edition?.event_date ? formatEventDate(edition.event_date, true) : "";
+
   return (
     <BenevolesForm
       editionId={edition?.id ?? ""}
       tasks={(tasks ?? []) as TaskOption[]}
+      eventDate={eventDate}
     />
   );
 }

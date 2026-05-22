@@ -18,9 +18,10 @@ const TASK_OPTIONS = [
 interface Props {
   editionId: string;
   tasks: TaskOption[];
+  eventDate: string;
 }
 
-export default function BenevolesForm({ editionId, tasks }: Props) {
+export default function BenevolesForm({ editionId, tasks, eventDate }: Props) {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -102,7 +103,8 @@ export default function BenevolesForm({ editionId, tasks }: Props) {
         </h1>
         <p className="mt-2 text-gray-500">
           Rejoignez l&apos;équipe de bénévoles du Grand Prix de Versoix.
-          Votre aide est précieuse pour faire de cet événement une réussite !
+          {eventDate && <> Rendez-vous le <strong>{eventDate}</strong> !</>}
+          {" "}Votre aide est précieuse pour faire de cet événement une réussite !
         </p>
       </div>
 

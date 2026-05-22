@@ -57,13 +57,25 @@ export async function createEdition(data: EditionFormData) {
 
     const { data: cats } = await admin
       .from("registration_categories")
-      .select("value, label, description, display_order, is_active")
+      .select("value, label, description, display_order, is_active, min_age, max_age")
       .eq("edition_id", activeEdition.id)
       .order("display_order");
 
     if (cats && cats.length > 0) {
       await admin.from("registration_categories").insert(
         cats.map((c) => ({ ...c, edition_id: newEdition.id }))
+      );
+    }
+
+    const { data: tasks } = await admin
+      .from("volunteer_tasks")
+      .select("label, display_order")
+      .eq("edition_id", activeEdition.id)
+      .order("display_order");
+
+    if (tasks && tasks.length > 0) {
+      await admin.from("volunteer_tasks").insert(
+        tasks.map((t) => ({ ...t, edition_id: newEdition.id }))
       );
     }
   }

@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Pencil, GripVertical, Check, X, Eye, EyeOff } from "lucide-react";
-import { updateCategory, toggleCategory, reorderCategories } from "./actions";
+import { updateCategory, toggleCategory, reorderCategories, updateAgeRange } from "./actions";
 import type { CategoryRow } from "./page";
 
 export default function CategoriesManager({
@@ -18,6 +18,8 @@ export default function CategoriesManager({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editLabel, setEditLabel] = useState("");
   const [editDesc, setEditDesc] = useState("");
+  const [editMinAge, setEditMinAge] = useState<string>("");
+  const [editMaxAge, setEditMaxAge] = useState<string>("");
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -32,21 +34,27 @@ export default function CategoriesManager({
     setEditingId(cat.id);
     setEditLabel(cat.label);
     setEditDesc(cat.description);
+    setEditMinAge(cat.min_age?.toString() ?? "");
+    setEditMaxAge(cat.max_age?.toString() ?? "");
   }
 
   function cancelEdit() {
     setEditingId(null);
     setEditLabel("");
     setEditDesc("");
+    setEditMinAge("");
+    setEditMaxAge("");
   }
 
   function saveEdit(id: string) {
     if (!editLabel.trim()) return;
+    const minAge = editMinAge === "" ? null : parseInt(editMinAge, 10);
+    const maxAge = editMaxAge === "" ? null : parseInt(editMaxAge, 10);
     const prev = categories;
     setCategories((cs) =>
       cs.map((c) =>
         c.id === id
-          ? { ...c, label: editLabel.trim(), description: editDesc.trim() }
+          ? { ...c, label: editLabel.trim(), description: editDesc.trim(), min_age: minAge, max_age: maxAge }
           : c
       )
     );
@@ -54,6 +62,7 @@ export default function CategoriesManager({
     startTransition(async () => {
       try {
         await updateCategory(id, editLabel.trim(), editDesc.trim());
+        await updateAgeRange(id, minAge, maxAge);
         toast.success("Catégorie mise à jour");
       } catch {
         toast.error("Erreur lors de la mise à jour");
@@ -151,9 +160,7 @@ export default function CategoriesManager({
                     autoFocus
                     value={editLabel}
                     onChange={(e) => setEditLabel(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Escape") cancelEdit();
-                    }}
+                    onKeyDown={(e) => { if (e.key === "Escape") cancelEdit(); }}
                     placeholder="Nom de la catégorie"
                     className="w-full rounded border border-blue-300 px-2 py-1 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -164,9 +171,32 @@ export default function CategoriesManager({
                       if (e.key === "Enter") saveEdit(cat.id);
                       if (e.key === "Escape") cancelEdit();
                     }}
-                    placeholder="Description (ex: Pneus pleins · Nés entre 2013 et 2020)"
+                    placeholder="Description (ex: Pneus pleins · Roues standard)"
                     className="w-full rounded border border-gray-200 px-2 py-1 text-xs text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
+                  <div className="flex gap-2 items-center">
+                    <span className="text-xs text-gray-400 whitespace-nowrap">Âge min</span>
+                    <input
+                      type="number"
+                      value={editMinAge}
+                      onChange={(e) => setEditMinAge(e.target.value)}
+                      placeholder="—"
+                      min={1}
+                      max={99}
+                      className="w-16 rounded border border-gray-200 px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <span className="text-xs text-gray-400 whitespace-nowrap">Âge max</span>
+                    <input
+                      type="number"
+                      value={editMaxAge}
+                      onChange={(e) => setEditMaxAge(e.target.value)}
+                      placeholder="—"
+                      min={1}
+                      max={99}
+                      className="w-16 rounded border border-gray-200 px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <span className="text-xs text-gray-300">(vide = pas de limite)</span>
+                  </div>
                   <div className="flex gap-1">
                     <button
                       onClick={() => saveEdit(cat.id)}
@@ -189,6 +219,12 @@ export default function CategoriesManager({
                     <p className="text-sm font-semibold text-gray-800">{cat.label}</p>
                     {cat.description && (
                       <p className="text-xs text-gray-400 mt-0.5">{cat.description}</p>
+                    )}
+                    {(cat.min_age !== null || cat.max_age !== null) && (
+                      <p className="text-xs text-blue-500 mt-0.5">
+                        {cat.min_age !== null && cat.max_age !== null && `${cat.min_age}–${cat.max_age} ans`}
+                        {cat.min_age !== null && cat.max_age === null && `${cat.min_age} ans et plus`}
+                      </p>
                     )}
                     <p className="text-xs text-gray-300 mt-0.5 font-mono">{cat.value}</p>
                   </div>

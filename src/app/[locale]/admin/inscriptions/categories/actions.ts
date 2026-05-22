@@ -27,6 +27,16 @@ export async function toggleCategory(id: string, isActive: boolean) {
   revalidatePath("/", "layout");
 }
 
+export async function updateAgeRange(id: string, minAge: number | null, maxAge: number | null) {
+  const admin = await assertAdmin();
+  const { error } = await admin
+    .from("registration_categories")
+    .update({ min_age: minAge, max_age: maxAge })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/", "layout");
+}
+
 export async function reorderCategories(ids: string[]) {
   const admin = await assertAdmin();
   await Promise.all(

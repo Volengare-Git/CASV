@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { computeIsOpen } from "@/lib/utils";
+import { computeIsOpen, formatEventDate } from "@/lib/utils";
 import InscriptionForm from "./inscription-form";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -19,7 +19,7 @@ export default async function InscriptionPage() {
 
   const { data: edition } = await supabase
     .from("editions")
-    .select("id, name, price_chf, max_pilots, is_registration_open, registration_opens_at, registration_closes_at")
+    .select("id, name, event_date, price_chf, max_pilots, is_registration_open, registration_opens_at, registration_closes_at")
     .eq("is_active", true)
     .single();
 
@@ -75,15 +75,20 @@ export default async function InscriptionPage() {
 
   const { data: rawCategories } = await supabase
     .from("registration_categories")
-    .select("value, label, description")
+    .select("value, label, description, min_age, max_age")
     .eq("edition_id", edition.id)
     .eq("is_active", true)
     .order("display_order");
 
+  const eventYear  = new Date(edition.event_date + "T12:00:00").getFullYear();
+  const eventDate  = formatEventDate(edition.event_date, true);
+
   const categories = (rawCategories ?? []).map((c) => ({
-    value: c.value,
-    label: c.label,
-    desc: c.description,
+    value:   c.value,
+    label:   c.label,
+    desc:    c.description,
+    min_age: c.min_age,
+    max_age: c.max_age,
   }));
 
   return (
@@ -95,6 +100,9 @@ export default async function InscriptionPage() {
       userEmail={user.email ?? ""}
       profile={profile}
       categories={categories}
+      eventDate={eventDate}
+      eventYear={eventYear}
+      eventDateIso={edition.event_date}
     />
   );
 }

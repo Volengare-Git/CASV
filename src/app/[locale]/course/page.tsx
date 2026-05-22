@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { formatEventDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -18,8 +19,18 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("title") };
 }
 
-export default function CoursePage() {
-  const t = useTranslations("course");
+export default async function CoursePage() {
+  const t = await getTranslations("course");
+
+  const admin = createAdminClient();
+  const { data: edition } = await admin
+    .from("editions")
+    .select("name, event_date")
+    .eq("is_active", true)
+    .single();
+
+  const editionName = edition?.name ?? "Grand-Prix de Versoix";
+  const eventDate   = edition?.event_date ? formatEventDate(edition.event_date) : "";
 
   const schedule = [
     { time: "7h00", event: "Fermeture de la route" },
@@ -53,12 +64,12 @@ export default function CoursePage() {
       {/* Header */}
       <div className="mb-10">
         <Badge className="mb-3 bg-blue-50 text-blue-800 border-blue-100 hover:bg-blue-50">
-          42ème Grand-Prix de Versoix
+          {editionName}
         </Badge>
         <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
           {t("title")}
         </h1>
-        <p className="mt-2 text-gray-500">Dimanche 2 mai 2027 · Versoix, Genève</p>
+        <p className="mt-2 text-gray-500">{eventDate} · Versoix, Genève</p>
       </div>
 
       <div className="space-y-12">

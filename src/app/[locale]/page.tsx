@@ -16,14 +16,14 @@ import {
   Shield,
   Zap,
 } from "lucide-react";
-import { computeIsOpen } from "@/lib/utils";
+import { computeIsOpen, formatEventDate } from "@/lib/utils";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("home");
   return { title: t("heroEdition") };
 }
 
-function HeroSection({ isOpen }: { isOpen: boolean }) {
+function HeroSection({ isOpen, editionName, eventDate }: { isOpen: boolean; editionName: string; eventDate: string }) {
   const t = useTranslations("home");
 
   return (
@@ -61,7 +61,7 @@ function HeroSection({ isOpen }: { isOpen: boolean }) {
           )}
 
           <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
-            {t("heroEdition")}
+            {editionName}
           </h1>
 
           <p className="mt-3 text-xl font-medium text-blue-200">
@@ -71,7 +71,7 @@ function HeroSection({ isOpen }: { isOpen: boolean }) {
           <div className="mt-6 flex flex-wrap gap-4 text-gray-300">
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-yellow-400" />
-              <span className="text-sm">{t("heroDate")}</span>
+              <span className="text-sm">{eventDate}</span>
             </div>
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-yellow-400" />
@@ -272,7 +272,7 @@ function AboutSection() {
   );
 }
 
-function CtaSection() {
+function CtaSection({ editionName, eventDate }: { editionName: string; eventDate: string }) {
   const t = useTranslations("home");
 
   return (
@@ -280,8 +280,8 @@ function CtaSection() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
           <div>
-            <h2 className="text-xl font-bold">{t("heroEdition")}</h2>
-            <p className="text-blue-200">{t("heroDate")}</p>
+            <h2 className="text-xl font-bold">{editionName}</h2>
+            <p className="text-blue-200">{eventDate}</p>
           </div>
           <div className="flex gap-3">
             <Link
@@ -308,7 +308,7 @@ export default async function HomePage() {
 
   const { data: edition } = await admin
     .from("editions")
-    .select("id, max_pilots, is_registration_open, registration_opens_at, registration_closes_at")
+    .select("id, name, event_date, max_pilots, is_registration_open, registration_opens_at, registration_closes_at")
     .eq("is_active", true)
     .single();
 
@@ -324,13 +324,16 @@ export default async function HomePage() {
     isOpen = computeIsOpen(edition) && !quotaReached;
   }
 
+  const editionName = edition?.name ?? "Grand-Prix de Versoix";
+  const eventDate   = edition?.event_date ? formatEventDate(edition.event_date) : "";
+
   return (
     <>
-      <HeroSection isOpen={isOpen} />
+      <HeroSection isOpen={isOpen} editionName={editionName} eventDate={eventDate} />
       <CategoriesSection />
       <InfoSection />
       <AboutSection />
-      <CtaSection />
+      <CtaSection editionName={editionName} eventDate={eventDate} />
     </>
   );
 }

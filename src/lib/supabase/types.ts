@@ -128,6 +128,8 @@ export interface Database {
           description: string;
           display_order: number;
           is_active: boolean;
+          min_age: number | null;
+          max_age: number | null;
         };
         Insert: {
           edition_id: string;
@@ -136,6 +138,8 @@ export interface Database {
           description?: string;
           display_order?: number;
           is_active?: boolean;
+          min_age?: number | null;
+          max_age?: number | null;
         };
         Update: Partial<Database["public"]["Tables"]["registration_categories"]["Insert"]>;
         Relationships: [];

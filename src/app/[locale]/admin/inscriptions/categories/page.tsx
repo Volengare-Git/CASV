@@ -11,6 +11,8 @@ export type CategoryRow = {
   description: string;
   display_order: number;
   is_active: boolean;
+  min_age: number | null;
+  max_age: number | null;
 };
 
 export default async function CategoriesPage() {
@@ -24,7 +26,7 @@ export default async function CategoriesPage() {
 
   const { data: categories } = await admin
     .from("registration_categories")
-    .select("id, value, label, description, display_order, is_active")
+    .select("id, value, label, description, display_order, is_active, min_age, max_age")
     .eq("edition_id", edition?.id ?? "")
     .order("display_order");
 

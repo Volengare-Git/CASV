@@ -2,9 +2,11 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import type { RegistrationRow } from "./page";
+import { AlertTriangle } from "lucide-react";
+import type { RegistrationRow, CategoryAgeRule } from "./page";
 import type { Category, PaymentStatus } from "@/lib/supabase/types";
 import { validatePayment, cancelRegistration, assignDossard } from "../actions";
+import { ageAtDate } from "@/lib/utils";
 
 const CATEGORY_LABELS: Record<Category, string> = {
   hobby: "Hobby",
@@ -51,10 +53,35 @@ function downloadCSV(rows: RegistrationRow[]) {
   URL.revokeObjectURL(url);
 }
 
+function checkAgeValidity(
+  reg: RegistrationRow,
+  eventDateIso: string,
+  ageRules: CategoryAgeRule[]
+): { valid: boolean; message: string } | null {
+  const birthDate = reg.profiles?.birth_date;
+  if (!birthDate || !eventDateIso) return null;
+  const rule = ageRules.find((r) => r.value === reg.category);
+  if (!rule || (rule.min_age === null && rule.max_age === null)) return null;
+  const birth   = new Date(birthDate);
+  const raceDay = new Date(eventDateIso + "T12:00:00");
+  const age     = ageAtDate(birth, raceDay);
+  if (rule.min_age !== null && age < rule.min_age) {
+    return { valid: false, message: `Trop jeune : ${age} ans (min. ${rule.min_age})` };
+  }
+  if (rule.max_age !== null && age > rule.max_age) {
+    return { valid: false, message: `Trop âgé : ${age} ans (max. ${rule.max_age})` };
+  }
+  return { valid: true, message: `${age} ans ✓` };
+}
+
 export default function InscriptionsTable({
   registrations,
+  eventDateIso,
+  ageRules,
 }: {
   registrations: RegistrationRow[];
+  eventDateIso: string;
+  ageRules: CategoryAgeRule[];
 }) {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<Category | "all">("all");
@@ -182,6 +209,7 @@ export default function InscriptionsTable({
               <Th>Pilote</Th>
               <Th>Catégorie</Th>
               <Th>Caisse</Th>
+              <Th>Âge</Th>
               <Th>Statut</Th>
               <Th>Dossard</Th>
               <Th>Inscrit le</Th>
@@ -191,7 +219,7 @@ export default function InscriptionsTable({
           <tbody className="divide-y divide-gray-100">
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={7} className="py-12 text-center text-sm text-gray-400">
+                <td colSpan={8} className="py-12 text-center text-sm text-gray-400">
                   Aucune inscription trouvée
                 </td>
               </tr>
@@ -199,8 +227,9 @@ export default function InscriptionsTable({
             {filtered.map((reg) => {
               const status = STATUS_STYLES[reg.payment_status];
               const isEditingThisDossard = editingDossard === reg.id;
+              const ageCheck = checkAgeValidity(reg, eventDateIso, ageRules);
               return (
-                <tr key={reg.id} className="hover:bg-gray-50 transition-colors">
+                <tr key={reg.id} className={`hover:bg-gray-50 transition-colors ${ageCheck && !ageCheck.valid ? "bg-amber-50/40" : ""}`}>
                   <Td>
                     <div className="font-medium text-gray-900">
                       {reg.profiles?.last_name ?? "—"} {reg.profiles?.first_name ?? ""}
@@ -208,9 +237,26 @@ export default function InscriptionsTable({
                     {reg.profiles?.phone && (
                       <div className="text-xs text-gray-400 mt-0.5">{reg.profiles.phone}</div>
                     )}
+                    {reg.profiles?.birth_date && (
+                      <div className="text-xs text-gray-300 mt-0.5">{reg.profiles.birth_date}</div>
+                    )}
                   </Td>
-                  <Td>{CATEGORY_LABELS[reg.category]}</Td>
+                  <Td>{CATEGORY_LABELS[reg.category] ?? reg.category}</Td>
                   <Td>{reg.vehicle_name}</Td>
+                  <Td>
+                    {ageCheck ? (
+                      ageCheck.valid ? (
+                        <span className="text-xs text-gray-400">{ageCheck.message}</span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-700">
+                          <AlertTriangle className="h-3.5 w-3.5" />
+                          {ageCheck.message}
+                        </span>
+                      )
+                    ) : (
+                      <span className="text-xs text-gray-300">—</span>
+                    )}
+                  </Td>
                   <Td>
                     <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${status.class}`}>
                       {status.label}
