@@ -104,35 +104,25 @@ function HeroSection({ isOpen, editionName, eventDate }: { isOpen: boolean; edit
   );
 }
 
-function CategoriesSection() {
-  const t = useTranslations("home");
+type HomeCategoryProp = {
+  value: string;
+  label: string;
+  description: string;
+  min_age: number | null;
+  max_age: number | null;
+};
 
-  const categories = [
-    {
-      key: "hobby",
-      icon: Shield,
-      color: "bg-blue-50 text-blue-700 border-blue-100",
-      iconColor: "text-blue-500",
-    },
-    {
-      key: "sport",
-      icon: Zap,
-      color: "bg-amber-50 text-amber-600 border-amber-100",
-      iconColor: "text-amber-500",
-    },
-    {
-      key: "libre",
-      icon: Flag,
-      color: "bg-purple-50 text-purple-600 border-purple-100",
-      iconColor: "text-purple-500",
-    },
-    {
-      key: "adultes",
-      icon: Trophy,
-      color: "bg-green-50 text-green-700 border-green-100",
-      iconColor: "text-green-600",
-    },
-  ] as const;
+// Icon/colour mapping by category value (fallback for unknown values)
+const CAT_STYLES: Record<string, { icon: typeof Shield; color: string; iconColor: string }> = {
+  hobby:  { icon: Shield, color: "bg-blue-50 text-blue-700 border-blue-100",    iconColor: "text-blue-500"   },
+  sport:  { icon: Zap,    color: "bg-amber-50 text-amber-600 border-amber-100", iconColor: "text-amber-500"  },
+  libre:  { icon: Flag,   color: "bg-purple-50 text-purple-600 border-purple-100", iconColor: "text-purple-500" },
+  adulte: { icon: Trophy, color: "bg-green-50 text-green-700 border-green-100", iconColor: "text-green-600"  },
+};
+const CAT_DEFAULT = { icon: Flag, color: "bg-gray-50 text-gray-700 border-gray-100", iconColor: "text-gray-500" };
+
+function CategoriesSection({ categories, eventYear }: { categories: HomeCategoryProp[]; eventYear: number }) {
+  const t = useTranslations("home");
 
   return (
     <section className="py-16 sm:py-20">
@@ -145,20 +135,31 @@ function CategoriesSection() {
         </div>
 
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {categories.map(({ key, icon: Icon, color, iconColor }) => (
-            <div
-              key={key}
-              className={`rounded-xl border p-6 transition-shadow hover:shadow-md ${color}`}
-            >
-              <Icon className={`mb-3 h-6 w-6 ${iconColor}`} />
-              <h3 className="font-bold text-lg">
-                {t(key as "hobby")}
-              </h3>
-              <p className="mt-1 text-sm opacity-80">
-                {t(`${key}Desc` as "hobbyDesc")}
-              </p>
-            </div>
-          ))}
+          {categories.map((cat) => {
+            const style   = CAT_STYLES[cat.value] ?? CAT_DEFAULT;
+            const Icon    = style.icon;
+            const yearRange =
+              cat.min_age !== null
+                ? cat.max_age !== null
+                  ? `Nés entre ${eventYear - cat.min_age} et ${eventYear - cat.max_age}`
+                  : `Nés en ${eventYear - cat.min_age} et avant`
+                : null;
+            return (
+              <div
+                key={cat.value}
+                className={`rounded-xl border p-6 transition-shadow hover:shadow-md ${style.color}`}
+              >
+                <Icon className={`mb-3 h-6 w-6 ${style.iconColor}`} />
+                <h3 className="font-bold text-lg">{cat.label}</h3>
+                {cat.description && (
+                  <p className="mt-1 text-sm opacity-80">{cat.description}</p>
+                )}
+                {yearRange && (
+                  <p className="mt-1 text-xs font-medium opacity-70">{yearRange}</p>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -326,11 +327,21 @@ export default async function HomePage() {
 
   const editionName = edition?.name ?? "Grand-Prix de Versoix";
   const eventDate   = edition?.event_date ? formatEventDate(edition.event_date) : "";
+  const eventYear   = edition?.event_date ? new Date(edition.event_date + "T12:00:00").getFullYear() : new Date().getFullYear();
+
+  const { data: dbCategories } = edition
+    ? await admin
+        .from("registration_categories")
+        .select("value, label, description, min_age, max_age")
+        .eq("edition_id", edition.id)
+        .eq("is_active", true)
+        .order("display_order")
+    : { data: [] };
 
   return (
     <>
       <HeroSection isOpen={isOpen} editionName={editionName} eventDate={eventDate} />
-      <CategoriesSection />
+      <CategoriesSection categories={(dbCategories ?? []) as HomeCategoryProp[]} eventYear={eventYear} />
       <InfoSection />
       <AboutSection />
       <CtaSection editionName={editionName} eventDate={eventDate} />
