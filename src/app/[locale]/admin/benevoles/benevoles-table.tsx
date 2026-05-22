@@ -87,13 +87,11 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 function VolunteerPanel({
   volunteer,
   posts,
-  tasks,
   onClose,
   onSaved,
 }: {
   volunteer: VolunteerRow;
   posts: PostOption[];
-  tasks: TaskOption[];
   onClose: () => void;
   onSaved: (updated: Partial<VolunteerRow>) => void;
 }) {
@@ -294,35 +292,6 @@ function VolunteerPanel({
               </div>
             )}
           </section>
-
-          {/* Task interests */}
-          {tasks.length > 0 && (
-            <section className="px-5 py-4">
-              <SectionTitle>Disponibilités par tâche</SectionTitle>
-              <div className="rounded-lg border border-gray-100 overflow-hidden">
-                {tasks.map((t, i) => {
-                  const val = volunteer.task_interests?.[t.id];
-                  return (
-                    <div
-                      key={t.id}
-                      className={`flex items-center justify-between px-3 py-2 text-sm ${i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}
-                    >
-                      <span className="text-gray-700 truncate pr-3">{t.label}</span>
-                      <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
-                        val === "oui"
-                          ? "bg-green-100 text-green-700"
-                          : val === "si_necessaire"
-                          ? "bg-amber-100 text-amber-700"
-                          : "bg-gray-100 text-gray-400"
-                      }`}>
-                        {val === "oui" ? "✓ Oui" : val === "si_necessaire" ? "~ Si nécessaire" : "✗ Non"}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-          )}
 
           {/* Notes */}
           <section className="px-5 py-4">
@@ -584,7 +553,6 @@ export default function BenevolesTable({
         <VolunteerPanel
           volunteer={selected}
           posts={posts}
-          tasks={tasks}
           onClose={() => setSelected(null)}
           onSaved={updated => handleSaved(selected.id, updated)}
         />
