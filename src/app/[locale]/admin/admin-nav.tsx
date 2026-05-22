@@ -5,7 +5,8 @@ import { Link } from "@/i18n/routing";
 
 const TABS = [
   { label: "Tableau de bord", href: "/admin", exact: true },
-  { label: "Inscriptions", href: "/admin/inscriptions" },
+  { label: "Inscriptions", href: "/admin/inscriptions", exact: true },
+  { label: "Catégories pilotes", href: "/admin/inscriptions/categories" },
   { label: "Bénévoles", href: "/admin/benevoles", exact: true },
   { label: "Tâches bénévoles", href: "/admin/benevoles/taches" },
   { label: "Résultats", href: "/admin/resultats" },

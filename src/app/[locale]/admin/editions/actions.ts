@@ -42,7 +42,7 @@ export async function createEdition(data: EditionFormData) {
 
   if (error) throw new Error(error.message);
 
-  // Copy volunteer posts from active edition
+  // Copy volunteer posts and registration categories from active edition
   if (activeEdition && newEdition) {
     const { data: posts } = await admin
       .from("volunteer_posts")
@@ -52,6 +52,18 @@ export async function createEdition(data: EditionFormData) {
     if (posts && posts.length > 0) {
       await admin.from("volunteer_posts").insert(
         posts.map((p) => ({ ...p, edition_id: newEdition.id }))
+      );
+    }
+
+    const { data: cats } = await admin
+      .from("registration_categories")
+      .select("value, label, description, display_order, is_active")
+      .eq("edition_id", activeEdition.id)
+      .order("display_order");
+
+    if (cats && cats.length > 0) {
+      await admin.from("registration_categories").insert(
+        cats.map((c) => ({ ...c, edition_id: newEdition.id }))
       );
     }
   }

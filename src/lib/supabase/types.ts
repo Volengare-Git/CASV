@@ -119,6 +119,27 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["volunteer_tasks"]["Insert"]>;
         Relationships: [];
       };
+      registration_categories: {
+        Row: {
+          id: string;
+          edition_id: string;
+          value: string;
+          label: string;
+          description: string;
+          display_order: number;
+          is_active: boolean;
+        };
+        Insert: {
+          edition_id: string;
+          value: string;
+          label: string;
+          description?: string;
+          display_order?: number;
+          is_active?: boolean;
+        };
+        Update: Partial<Database["public"]["Tables"]["registration_categories"]["Insert"]>;
+        Relationships: [];
+      };
       race_results: {
         Row: {
           id: string;

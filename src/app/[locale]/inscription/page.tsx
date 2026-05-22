@@ -73,6 +73,19 @@ export default async function InscriptionPage() {
     .eq("id", user.id)
     .single();
 
+  const { data: rawCategories } = await supabase
+    .from("registration_categories")
+    .select("value, label, description")
+    .eq("edition_id", edition.id)
+    .eq("is_active", true)
+    .order("display_order");
+
+  const categories = (rawCategories ?? []).map((c) => ({
+    value: c.value,
+    label: c.label,
+    desc: c.description,
+  }));
+
   return (
     <InscriptionForm
       editionId={edition.id}
@@ -81,6 +94,7 @@ export default async function InscriptionPage() {
       userId={user.id}
       userEmail={user.email ?? ""}
       profile={profile}
+      categories={categories}
     />
   );
 }

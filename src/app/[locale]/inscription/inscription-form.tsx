@@ -11,7 +11,11 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle, ChevronRight, ChevronLeft, User, Flag, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type Category = "hobby" | "sport" | "libre" | "adulte";
+export interface CategoryOption {
+  value: string;
+  label: string;
+  desc: string;
+}
 
 interface Profile {
   first_name: string;
@@ -30,6 +34,7 @@ interface Props {
   userId: string;
   userEmail: string;
   profile: Profile | null;
+  categories: CategoryOption[];
 }
 
 interface FormData {
@@ -41,16 +46,9 @@ interface FormData {
   postalCode: string;
   city: string;
   vehicleName: string;
-  category: Category | "";
+  category: string;
   termsAccepted: boolean;
 }
-
-const CATEGORIES: { value: Category; label: string; desc: string }[] = [
-  { value: "hobby",  label: "Hobby",   desc: "Pneus pleins · Nés entre 2012 et 2019" },
-  { value: "sport",  label: "Sport",   desc: "Pneus gonflés · Nés entre 2012 et 2019" },
-  { value: "libre",  label: "Libre",   desc: "Designs alternatifs · Nés entre 2012 et 2019" },
-  { value: "adulte", label: "Adultes", desc: "16 ans et plus" },
-];
 
 const STEPS = [
   { id: 1, label: "Infos personnelles", icon: User },
@@ -60,7 +58,7 @@ const STEPS = [
 
 type Step = 1 | 2 | 3;
 
-export default function InscriptionForm({ editionId, editionName, priceChf, userId, userEmail, profile }: Props) {
+export default function InscriptionForm({ editionId, editionName, priceChf, userId, userEmail, profile, categories }: Props) {
   const t = useTranslations("inscription");
   const [step, setStep] = useState<Step>(1);
   const [submitted, setSubmitted] = useState(false);
@@ -79,6 +77,8 @@ export default function InscriptionForm({ editionId, editionName, priceChf, user
     category:    "",
     termsAccepted: false,
   });
+
+  const categoryLabel = categories.find((c) => c.value === data.category)?.label ?? data.category;
 
   function update(field: keyof FormData, value: string | boolean) {
     setData((prev) => ({ ...prev, [field]: value }));
@@ -102,7 +102,8 @@ export default function InscriptionForm({ editionId, editionName, priceChf, user
     const { error: regError } = await supabase.from("registrations").insert({
       user_id:        userId,
       edition_id:     editionId,
-      category:       data.category as Category,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      category:       data.category as any,
       vehicle_name:   data.vehicleName,
       payment_status: "paid",
       payment_method: "mock",
@@ -137,7 +138,7 @@ export default function InscriptionForm({ editionId, editionName, priceChf, user
             </div>
             <div className="flex justify-between">
               <dt className="text-gray-500">Catégorie</dt>
-              <dd className="font-medium capitalize">{data.category}</dd>
+              <dd className="font-medium">{categoryLabel}</dd>
             </div>
             <div className="flex justify-between">
               <dt className="text-gray-500">Statut paiement</dt>
@@ -256,7 +257,7 @@ export default function InscriptionForm({ editionId, editionName, priceChf, user
           <div className="space-y-3">
             <Label>{t("category")} *</Label>
             <div className="grid gap-2 sm:grid-cols-2">
-              {CATEGORIES.map((cat) => (
+              {categories.map((cat) => (
                 <button
                   key={cat.value}
                   type="button"
@@ -297,7 +298,7 @@ export default function InscriptionForm({ editionId, editionName, priceChf, user
               <div className="flex justify-between"><dt className="text-gray-500">Email</dt><dd className="font-medium">{userEmail}</dd></div>
               <div className="flex justify-between"><dt className="text-gray-500">Date de naissance</dt><dd className="font-medium">{data.birthDate}</dd></div>
               <div className="flex justify-between"><dt className="text-gray-500">Caisse</dt><dd className="font-medium">{data.vehicleName}</dd></div>
-              <div className="flex justify-between"><dt className="text-gray-500">Catégorie</dt><dd className="font-medium capitalize">{data.category}</dd></div>
+              <div className="flex justify-between"><dt className="text-gray-500">Catégorie</dt><dd className="font-medium">{categoryLabel}</dd></div>
             </dl>
           </div>
           <div className="rounded-xl border border-gray-200 p-4 flex items-start justify-between">
