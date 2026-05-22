@@ -44,6 +44,48 @@ export async function saveVolunteerAssignment(
   revalidatePath("/", "layout");
 }
 
+/** Add / remove a single post from a volunteer's assignment list */
+export async function addPostToVolunteer(volunteerRegId: string, postId: string) {
+  const admin = await assertAdmin();
+  const { data, error: fetchErr } = await admin
+    .from("volunteer_registrations")
+    .select("assigned_post_ids, status")
+    .eq("id", volunteerRegId)
+    .single();
+  if (fetchErr) throw new Error(fetchErr.message);
+  const current = data?.assigned_post_ids ?? [];
+  if (current.includes(postId)) return; // already assigned
+  const next = [...current, postId];
+  const { error } = await admin
+    .from("volunteer_registrations")
+    .update({ assigned_post_ids: next, assigned_post_id: next[0], status: "assigned", assignment_mode: "manual" })
+    .eq("id", volunteerRegId);
+  if (error) throw new Error(error.message);
+  revalidatePath("/", "layout");
+}
+
+export async function removePostFromVolunteer(volunteerRegId: string, postId: string) {
+  const admin = await assertAdmin();
+  const { data, error: fetchErr } = await admin
+    .from("volunteer_registrations")
+    .select("assigned_post_ids")
+    .eq("id", volunteerRegId)
+    .single();
+  if (fetchErr) throw new Error(fetchErr.message);
+  const next = (data?.assigned_post_ids ?? []).filter((id: string) => id !== postId);
+  const { error } = await admin
+    .from("volunteer_registrations")
+    .update({
+      assigned_post_ids: next,
+      assigned_post_id: next[0] ?? null,
+      status: next.length > 0 ? "assigned" : "pending",
+      assignment_mode: "manual",
+    })
+    .eq("id", volunteerRegId);
+  if (error) throw new Error(error.message);
+  revalidatePath("/", "layout");
+}
+
 /** CRUD for volunteer_tasks */
 export async function createTask(editionId: string, label: string, displayOrder: number) {
   const admin = await assertAdmin();

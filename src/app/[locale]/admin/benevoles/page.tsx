@@ -24,7 +24,15 @@ export type VolunteerRow = {
   editions: { name: string } | null;
 };
 
-export type PostOption = { id: string; name: string; start_time: string; end_time: string };
+export type PostOption = {
+  id: string;
+  name: string;
+  start_time: string | null;
+  end_time: string | null;
+  order_code: number | null;
+  time_label: string | null;
+  capacity: number;
+};
 export type TaskOption = { id: string; label: string };
 
 export default async function BenevolesAdminPage() {
@@ -48,7 +56,7 @@ export default async function BenevolesAdminPage() {
       .order("created_at", { ascending: true }),
     admin
       .from("volunteer_posts")
-      .select("id, name, start_time, end_time")
+      .select("id, name, start_time, end_time, order_code, time_label, capacity")
       .eq("edition_id", editionId)
       .order("display_order"),
     admin

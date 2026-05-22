@@ -95,10 +95,12 @@ export interface Database {
           edition_id: string;
           name: string;
           description: string | null;
-          start_time: string;
-          end_time: string;
+          start_time: string | null;
+          end_time: string | null;
           capacity: number;
           display_order: number;
+          order_code: number | null;
+          time_label: string | null;
         };
         Insert: Omit<Database["public"]["Tables"]["volunteer_posts"]["Row"], "id">;
         Update: Partial<Database["public"]["Tables"]["volunteer_posts"]["Insert"]>;

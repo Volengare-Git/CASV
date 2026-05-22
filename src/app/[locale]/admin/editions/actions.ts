@@ -46,7 +46,7 @@ export async function createEdition(data: EditionFormData) {
   if (activeEdition && newEdition) {
     const { data: posts } = await admin
       .from("volunteer_posts")
-      .select("name, description, start_time, end_time, capacity, display_order")
+      .select("name, description, start_time, end_time, capacity, display_order, order_code, time_label")
       .eq("edition_id", activeEdition.id);
 
     if (posts && posts.length > 0) {

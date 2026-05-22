@@ -282,7 +282,8 @@ function VolunteerPanel({
                         {p.name}
                       </p>
                       <p className="text-xs text-gray-400">
-                        {p.start_time.slice(0, 5)} – {p.end_time.slice(0, 5)}
+                        {p.time_label ?? p.start_time?.slice(0, 5) ?? "—"}
+                        {p.end_time ? ` → ${p.end_time.slice(0, 5)}` : ""}
                       </p>
                     </div>
                     {postIds.includes(p.id) && (

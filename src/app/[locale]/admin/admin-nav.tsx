@@ -8,6 +8,8 @@ const TABS = [
   { label: "Inscriptions", href: "/admin/inscriptions", exact: true },
   { label: "Catégories pilotes", href: "/admin/inscriptions/categories" },
   { label: "Bénévoles", href: "/admin/benevoles", exact: true },
+  { label: "Postes", href: "/admin/benevoles/postes" },
+  { label: "Planning", href: "/admin/benevoles/planning" },
   { label: "Tâches bénévoles", href: "/admin/benevoles/taches" },
   { label: "Résultats", href: "/admin/resultats" },
   { label: "Éditions", href: "/admin/editions" },
