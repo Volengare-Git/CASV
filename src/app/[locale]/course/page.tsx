@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getLocale } from "next-intl/server";
 import { formatEventDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -21,6 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function CoursePage() {
   const t = await getTranslations("course");
+  const locale = await getLocale();
 
   const admin = createAdminClient();
   const { data: edition } = await admin
@@ -30,7 +32,7 @@ export default async function CoursePage() {
     .single();
 
   const editionName = edition?.name ?? "Grand-Prix de Versoix";
-  const eventDate   = edition?.event_date ? formatEventDate(edition.event_date) : "";
+  const eventDate   = edition?.event_date ? formatEventDate(edition.event_date, false, locale) : "";
 
   const schedule = [
     { time: "7h00", event: "Fermeture de la route" },

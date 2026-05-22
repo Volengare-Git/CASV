@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
+import { getLocale } from "next-intl/server";
 import { formatEventDate } from "@/lib/utils";
 import BenevolesForm from "./benevoles-form";
 
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 export type TaskOption = { id: string; label: string; display_order: number };
 
 export default async function BenevolesPage() {
+  const locale = await getLocale();
   const supabase = await createClient();
 
   const { data: edition } = await supabase
@@ -24,7 +26,7 @@ export default async function BenevolesPage() {
     .eq("edition_id", edition?.id ?? "")
     .order("display_order");
 
-  const eventDate = edition?.event_date ? formatEventDate(edition.event_date, true) : "";
+  const eventDate = edition?.event_date ? formatEventDate(edition.event_date, true, locale) : "";
 
   return (
     <BenevolesForm

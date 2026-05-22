@@ -164,6 +164,18 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["race_results"]["Insert"]>;
         Relationships: [];
       };
+      app_settings: {
+        Row: {
+          id: number;
+          maintenance_mode: boolean;
+          maintenance_message: string;
+          maintenance_until: string | null;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["app_settings"]["Row"]>;
+        Update: Partial<Database["public"]["Tables"]["app_settings"]["Row"]>;
+        Relationships: [];
+      };
       volunteer_registrations: {
         Row: {
           id: string;

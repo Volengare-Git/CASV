@@ -13,6 +13,7 @@ const TABS = [
   { label: "Tâches bénévoles", href: "/admin/benevoles/taches" },
   { label: "Résultats", href: "/admin/resultats" },
   { label: "Éditions", href: "/admin/editions" },
+  { label: "Maintenance", href: "/admin/maintenance" },
 ];
 
 export default function AdminNav() {

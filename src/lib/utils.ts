@@ -5,16 +5,19 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-const FR_DAYS   = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
-const FR_MONTHS = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
-
-/** "Dimanche 2 mai 2027" or short = true → "2 mai 2027" */
-export function formatEventDate(isoDate: string, short = false): string {
+/**
+ * "Dimanche 2 mai 2027" (FR) / "Sunday, May 2, 2027" (EN)
+ * short=true → "2 mai 2027" / "May 2, 2027"
+ * locale defaults to "fr" for backward compatibility.
+ */
+export function formatEventDate(isoDate: string, short = false, locale = "fr"): string {
   const d = new Date(isoDate + "T12:00:00"); // noon avoids any UTC shift
-  const day   = d.getDate();
-  const month = FR_MONTHS[d.getMonth()];
-  const year  = d.getFullYear();
-  return short ? `${day} ${month} ${year}` : `${FR_DAYS[d.getDay()]} ${day} ${month} ${year}`;
+  const options: Intl.DateTimeFormatOptions = short
+    ? { day: "numeric", month: "long", year: "numeric" }
+    : { weekday: "long", day: "numeric", month: "long", year: "numeric" };
+  const formatted = new Intl.DateTimeFormat(locale, options).format(d);
+  // Capitalise first letter (Intl returns lowercase weekday in French)
+  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
 }
 
 /**

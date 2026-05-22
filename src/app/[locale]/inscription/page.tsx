@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getLocale } from "next-intl/server";
 import { computeIsOpen, formatEventDate } from "@/lib/utils";
 import InscriptionForm from "./inscription-form";
 
@@ -12,6 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function InscriptionPage() {
+  const locale = await getLocale();
   const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
@@ -81,7 +83,7 @@ export default async function InscriptionPage() {
     .order("display_order");
 
   const eventYear  = new Date(edition.event_date + "T12:00:00").getFullYear();
-  const eventDate  = formatEventDate(edition.event_date, true);
+  const eventDate  = formatEventDate(edition.event_date, true, locale);
 
   const categories = (rawCategories ?? []).map((c) => ({
     value:   c.value,

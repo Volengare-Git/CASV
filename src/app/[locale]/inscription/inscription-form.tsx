@@ -55,17 +55,17 @@ interface FormData {
   termsAccepted: boolean;
 }
 
-const STEPS = [
-  { id: 1, label: "Infos personnelles", icon: User },
-  { id: 2, label: "Votre caisse",       icon: Flag },
-  { id: 3, label: "Confirmation",       icon: CreditCard },
-] as const;
-
 type Step = 1 | 2 | 3;
 
 export default function InscriptionForm({ editionId, editionName, priceChf, userId, userEmail, profile, categories, eventDate, eventYear, eventDateIso }: Props) {
   const t = useTranslations("inscription");
   const [step, setStep] = useState<Step>(1);
+
+  const STEPS = [
+    { id: 1 as Step, label: t("step1"), icon: User },
+    { id: 2 as Step, label: t("step2"), icon: Flag },
+    { id: 3 as Step, label: t("step3"), icon: CreditCard },
+  ];
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { useTranslations } from "next-intl";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -305,6 +305,7 @@ function CtaSection({ editionName, eventDate }: { editionName: string; eventDate
 }
 
 export default async function HomePage() {
+  const locale = await getLocale();
   const admin = createAdminClient();
 
   const { data: edition } = await admin
@@ -326,7 +327,7 @@ export default async function HomePage() {
   }
 
   const editionName = edition?.name ?? "Grand-Prix de Versoix";
-  const eventDate   = edition?.event_date ? formatEventDate(edition.event_date) : "";
+  const eventDate   = edition?.event_date ? formatEventDate(edition.event_date, false, locale) : "";
   const eventYear   = edition?.event_date ? new Date(edition.event_date + "T12:00:00").getFullYear() : new Date().getFullYear();
 
   const { data: dbCategories } = edition
