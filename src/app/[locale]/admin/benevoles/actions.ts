@@ -13,11 +13,33 @@ export async function assignVolunteerPosts(
     .from("volunteer_registrations")
     .update({
       assigned_post_ids: postIds,
-      assigned_post_id: postIds[0] ?? null, // keep legacy column in sync
+      assigned_post_id: postIds[0] ?? null,
       status: postIds.length > 0 ? "assigned" : "pending",
       assignment_mode: "manual",
     })
     .eq("id", volunteerRegId);
+  if (error) throw new Error(error.message);
+  revalidatePath("/", "layout");
+}
+
+/** Save posts + status + notes in one round-trip */
+export async function saveVolunteerAssignment(
+  id: string,
+  postIds: string[],
+  status: import("@/lib/supabase/types").VolunteerStatus,
+  notes: string
+) {
+  const admin = await assertAdmin();
+  const { error } = await admin
+    .from("volunteer_registrations")
+    .update({
+      assigned_post_ids: postIds,
+      assigned_post_id: postIds[0] ?? null,
+      status,
+      notes: notes.trim() || null,
+      assignment_mode: "manual",
+    })
+    .eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/", "layout");
 }
