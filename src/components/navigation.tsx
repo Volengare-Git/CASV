@@ -32,7 +32,7 @@ export default function Navigation({ user }: Props) {
 
   const raceLinks = [
     { href: "/course", label: t("program") },
-    { href: "/course#reglement", label: t("rules") },
+    { href: "/reglement", label: t("rules") },
     { href: "/course#acces", label: t("access") },
     { href: "/galerie", label: t("gallery") },
     { href: "/resultats", label: t("results") },
