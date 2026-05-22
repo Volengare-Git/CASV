@@ -202,7 +202,7 @@ export default function Navigation({ user }: Props) {
               <Menu className="h-5 w-5" />
               <span className="sr-only">Menu</span>
             </SheetTrigger>
-            <SheetContent side="right" className="w-72 p-0">
+            <SheetContent side="right" className="w-72 p-0 flex flex-col h-full">
               <div className="flex items-center justify-between border-b px-4 py-4">
                 <span className="font-bold">
                   <span className="text-blue-800">CASV</span> Versoix
@@ -212,7 +212,7 @@ export default function Navigation({ user }: Props) {
                 </Button>
               </div>
 
-              <nav className="flex flex-col gap-1 p-4">
+              <nav className="flex flex-col gap-1 p-4 flex-1 overflow-y-auto">
                 <p className="mb-1 px-3 text-xs font-semibold uppercase tracking-widest text-gray-400">
                   Course
                 </p>
